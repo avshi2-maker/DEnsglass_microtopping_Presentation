@@ -268,7 +268,7 @@ function renderCover(sl){
           ${bullets.map(b=>`<span class="tag">${b.icon} ${b.heading}</span>`).join('')}
         </div>
         ${sl.image_url?`<img src="${sl.image_url}" class="hero-img" style="margin-top:24px;height:200px" onerror="this.style.display='none'">` :''}
-        <p style="font-size:10px;color:#555;margin-top:20px">${offerMeta.prepared_by||'אבשי ספיר'}</p>
+        
       </div>
       <div style="background:var(--teal);border-radius:16px;padding:28px;text-align:center">
         <div style="font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:18px">המערכת</div>
@@ -345,7 +345,68 @@ function renderTwoCol(sl){
               <div style="font-size:11px;${isLight?'color:#444':'color:var(--lgray)'};line-height:1.8">${f.body_text||''}</div>
             </div>
           </div>`).join('')}
-        <div class="epd-bar">📄 <a href="${EPD_URL}" target="_blank">${isGreen?'הורד את ה-EPD של דנסגלס® (PDF)':'צפה בדף נתוני EPD — דנסגלס® (PDF)'}</a></div>
+        ${!isGreen?`<div class="epd-bar">📄 <a href="${EPD_URL}" target="_blank">צפה בדף נתוני EPD — דנסגלס® (PDF)</a></div>`:''}
+        ${isGreen?`
+        <!-- צבעים -->
+        <div style="margin-top:16px">
+          <div style="font-size:11px;font-weight:900;color:var(--green);margin-bottom:8px;letter-spacing:1px">🎨 מגוון צבעים — לחץ להגדלה</div>
+          <img src="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/classic%20color%20topcret.jpg"
+               style="width:100%;border-radius:10px;cursor:zoom-in;box-shadow:0 4px 20px rgba(0,0,0,0.3)"
+               onclick="openLB('https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/classic%20color%20topcret.jpg','מגוון הצבעים — Topcret® Colour Chart')"
+               alt="צבעי Topcret" onerror="this.style.display='none'">
+          <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+            <a href="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/classic%20color%20topcret.jpg"
+               target="_blank"
+               style="flex:1;background:var(--green);color:#fff;padding:9px 14px;border-radius:8px;
+                      font-size:11px;font-weight:700;text-decoration:none;text-align:center">
+              🔍 הגדל תמונה
+            </a>
+            <a href="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/COLOR_CHART_EN_NEW.pdf"
+               target="_blank"
+               style="flex:1;background:rgba(45,158,107,0.2);border:1px solid var(--green);
+                      color:var(--green);padding:9px 14px;border-radius:8px;
+                      font-size:11px;font-weight:700;text-decoration:none;text-align:center">
+              📥 הורד מדריך צבעים PDF
+            </a>
+          </div>
+          <div style="font-size:10px;color:var(--mgray);margin-top:6px;text-align:center">
+            40+ צבעים בסיסיים + Paint To Sample מותאם אישית · Topcret®
+          </div>
+        </div>
+
+        <!-- קיימות Topcret -->
+        <div style="margin-top:20px;background:rgba(45,158,107,0.08);border:1px solid rgba(45,158,107,0.25);
+                    border-radius:12px;padding:16px;direction:rtl">
+          <div style="font-size:12px;font-weight:900;color:var(--green);margin-bottom:12px;
+                      display:flex;align-items:center;gap:8px">
+            ♻️ מחויבות הקיימות של Topcret®
+            <a href="https://topcret.com/sostenibilidad/" target="_blank"
+               style="font-size:9px;color:var(--mgray);font-weight:400;text-decoration:none;
+                      border:1px solid rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px">
+              🔗 המקור
+            </a>
+          </div>
+          ${[
+            ['🌿','חומרי גלם','15% חומרי גלם ממקור ממוחזר. מיקרו-מלט מבוסס מלט, אגרגטים עדינים ופולימרים.'],
+            ['⚡','ייצור','עובי 2 מ"מ = שימוש בהרבה פחות חומר מבטון רגיל. ייצור דורש פחות אנרגיה מאריחים, ויניל או פרקט.'],
+            ['🚛','הפצה','חומר נוזלי וקל — פחות CO₂ בהובלה לעומת חומרים מסורתיים כבדים.'],
+            ['🔄','יישום','מיושם על משטחים קיימים — ללא הריסה. פחות פסולת. פחות שימוש במים לעומת בטון.'],
+            ['💚','שימוש','מיקרו-מלט ראשון בעולם ללא VOC. תחזוקה במים וסבון ניטרלי בלבד. ניתן למיחזור ולשימוש חוזר.']
+          ].map(([ico,title,body])=>`
+            <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(45,158,107,0.15);align-items:flex-start">
+              <span style="font-size:18px;flex-shrink:0">${ico}</span>
+              <div>
+                <div style="font-size:10px;font-weight:900;color:var(--green);margin-bottom:3px">${title}</div>
+                <div style="font-size:10px;color:var(--lgray);line-height:1.7">${body}</div>
+              </div>
+            </div>`).join('')}
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+            ${['EPD מאושר','LEED','BREEAM Exemplary','WELL Standard','אפס VOC','בסיס מים','ריחרי'].map(c=>
+              `<span style="background:rgba(45,158,107,0.2);border:1px solid rgba(45,158,107,0.4);
+                            color:var(--green);padding:3px 10px;border-radius:12px;font-size:9px;font-weight:700">${c}</span>`
+            ).join('')}
+          </div>
+        </div>`:''}
       </div>
       <div class="col-right" style="${colBg}">
         ${sl.image_url?`<img src="${sl.image_url}" class="product-img" onerror="this.style.display='none'">` :''}
