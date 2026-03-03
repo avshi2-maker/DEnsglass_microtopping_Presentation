@@ -23,7 +23,7 @@ nav{position:fixed;top:0;right:0;left:0;z-index:999;background:rgba(10,10,20,0.9
 .nav-btn.active{color:var(--gold);border-bottom:2px solid var(--gold)}
 
 /* SLIDE BASE */
-.slide{display:none;min-height:100vh;padding:40px 20px;animation:fadeIn 0.6s ease-out}
+.slide{display:none;min-height:100vh;padding:80px 20px 40px;animation:fadeIn 0.6s ease-out}
 .slide.active{display:flex;flex-direction:column;align-items:center}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -38,22 +38,17 @@ h1{font-size:42px;font-weight:900;line-height:1.1;margin-bottom:15px}
 .card h3{color:var(--gold);margin-bottom:15px;font-size:20px}
 .card p{line-height:1.6;color:var(--lgray);font-size:15px}
 
-/* MODULE SLIDE */
+/* MODULE WRAP */
 .module-wrap{position:relative;width:100%;max-width:900px;background:#fff;padding:20px;border-radius:8px;color:#111;text-align:center}
-.module-img{width:100%;height:auto;display:block}
-.texture-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:20px;width:100%;max-width:900px;margin-top:20px}
-.texture-item img{width:100%;border-radius:10px;border:2px solid var(--gold);cursor:zoom-in;transition:0.3s}
-.texture-item img:hover{transform:scale(1.05)}
+.module-img{width:100%;height:auto;display:block;margin:0 auto 20px}
+.texture-gallery{display:grid;grid-template-columns:repeat(3, 1fr);gap:15px;margin-top:20px}
+.texture-box img{width:100%;border-radius:6px;border:2px solid var(--gold);cursor:pointer}
+.texture-box p{font-size:12px;font-weight:bold;margin-top:5px}
 
 /* TABLE */
 table{width:100%;max-width:1000px;border-collapse:collapse;margin-top:20px;background:rgba(255,255,255,0.02)}
 th,td{padding:15px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.1)}
 th{color:var(--gold);font-weight:700}
-
-@media (max-width:768px){
-  h1{font-size:32px}
-  .nav-btn{font-size:12px;padding:6px 10px}
-}
 </style>
 </head>
 <body>
@@ -81,7 +76,6 @@ async function init(){
 }
 
 function gc(key){ return allContent.filter(x=>x.slide_key===key); }
-function idx(sl){ return allSlides.indexOf(sl); }
 
 function render(){
   const main = document.getElementById('main');
@@ -89,38 +83,47 @@ function render(){
   let html = '';
 
   allSlides.forEach((sl,i)=>{
-    if(sl.layout==='cover') html += `
-      <div class="slide ${i===0?'active':''}" id="slide-${i}" style="background:linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)), url('${sl.image_url}') center/cover;justify-content:center">
+    const activeClass = i === 0 ? 'active' : '';
+    
+    // COVER LAYOUT
+    if(sl.layout==='cover'){
+      html += `
+      <div class="slide ${activeClass}" id="slide-${i}" style="background:linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.8)), url('${sl.image_url}') center/cover;justify-content:center">
         <div class="slide-header">
           <div class="slide-label" style="color:${sl.accent_color}">דנסגלס® + באקסב-אקו®</div>
           <h1 style="color:#fff">חידוש חזיתות – בית גולדמן נתניה</h1>
           <div class="header-line" style="background:${sl.accent_color}"></div>
-          <button onclick="goTo(1)" style="background:${sl.accent_color};border:none;padding:15px 30px;color:#fff;font-weight:900;cursor:pointer;border-radius:4px;margin-top:20px">התחל מצגת</button>
+          <button onclick="goTo(1)" style="background:${sl.accent_color};border:none;padding:15px 30px;color:#fff;font-weight:900;cursor:pointer;border-radius:4px">התחל מצגת</button>
         </div>
       </div>`;
-    
-    else if(sl.layout==='image_full' || sl.slide_key==='module') html += `
-      <div class="slide" id="slide-${i}" style="background:${sl.bg_color};padding-top:68px">
+    } 
+    // MODULE LAYOUT (SLIDE 11)
+    else if(sl.slide_key==='module'){
+      const textures = gc('module');
+      html += `
+      <div class="slide ${activeClass}" id="slide-${i}" style="background:${sl.bg_color}">
         <div class="slide-header">
-          <div class="slide-label" style="color:${sl.accent_color}">סקיצה טכנית וגוונים</div>
+          <div class="slide-label" style="color:${sl.accent_color}">מפרט טכני</div>
           <h1 style="color:#fff">#11 מודול הבנייה - חתך מערכת בשלושה גוונים</h1>
           <div class="header-line" style="background:${sl.accent_color}"></div>
         </div>
         <div class="module-wrap">
-          <img src="${MOD_URL}" class="module-img" alt="מודול">
-          <div class="texture-grid">
-            ${gc('module').map(t => `
-              <div class="texture-item">
-                <img src="${t.image_url}" onclick="window.open('${t.image_url}', '_blank')">
-                <p style="font-size:12px; color:#111; margin-top:8px; font-weight:bold">${t.heading || ''}</p>
+          <img src="${MOD_URL}" class="module-img">
+          <div class="texture-gallery">
+            ${textures.map(t => `
+              <div class="texture-box">
+                <img src="${t.image_url}" onclick="window.open('${t.image_url}','_blank')">
+                <p>${t.heading || ''}</p>
               </div>
             `).join('')}
           </div>
         </div>
       </div>`;
-
-    else html += `
-      <div class="slide" id="slide-${i}" style="background:${sl.bg_color};padding-top:68px">
+    }
+    // DEFAULT GRID LAYOUT
+    else {
+      html += `
+      <div class="slide ${activeClass}" id="slide-${i}" style="background:${sl.bg_color}">
         <div class="slide-header">
           <div class="slide-label" style="color:${sl.accent_color}">${sl.title}</div>
           <h1 style="color:#fff">${sl.title}</h1>
@@ -128,14 +131,15 @@ function render(){
           <div class="header-line" style="background:${sl.accent_color}"></div>
         </div>
         <div class="grid3">
-          ${gc(sl.slide_key).map(c=>`
+          ${gc(sl.slide_key).map(block=>`
             <div class="card">
-              <h3>${c.heading}</h3>
-              <p>${c.body_text}</p>
+              <h3>${block.heading}</h3>
+              <p>${block.body_text}</p>
             </div>
           `).join('')}
         </div>
       </div>`;
+    }
   });
 
   main.innerHTML = html;
