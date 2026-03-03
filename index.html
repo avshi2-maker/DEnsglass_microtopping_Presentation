@@ -7,11 +7,57 @@
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ... (Keep your original styles here as they are in your index.html) ... */
-/* I have ensured the .texture-gallery logic is appended to the module section */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#1a1a2e;--teal:#0d5c63;--teal2:#0a4550;
+  --gold:#c9933a;--gold2:#e8b84c;
+  --cream:#fdf6e3;--lgray:#f0ebe0;
+  --green:#2d9e6b;--red:#dc2626;
+  --white:#ffffff;--mgray:#8b8b8b;
+}
+body{font-family:'Heebo',sans-serif;background:#111;color:#fff;overflow-x:hidden;direction:rtl}
+
+/* NAV */
+nav{position:fixed;top:0;right:0;left:0;z-index:999;background:rgba(10,10,20,0.96);display:flex;overflow-x:auto;padding:10px;border-bottom:1px solid var(--gold)}
+.nav-btn{background:none;border:none;color:var(--mgray);padding:8px 15px;cursor:pointer;white-space:nowrap;font-weight:600;transition:0.3s;font-size:14px}
+.nav-btn.active{color:var(--gold);border-bottom:2px solid var(--gold)}
+
+/* SLIDE BASE */
+.slide{display:none;min-height:100vh;padding:100px 20px 60px;animation:fadeIn 0.6s ease-out}
+.slide.active{display:flex;flex-direction:column;align-items:center}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.slide-header{text-align:center;margin-bottom:40px;max-width:800px}
+.slide-label{text-transform:uppercase;letter-spacing:2px;font-size:12px;font-weight:700;margin-bottom:10px}
+h1{font-size:42px;font-weight:900;line-height:1.1;margin-bottom:15px}
+.header-line{width:60px;height:4px;margin:20px auto}
+
+/* GRID3 */
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:25px;width:100%;max-width:1100px}
+.card{background:rgba(255,255,255,0.03);padding:30px;border-right:4px solid var(--gold);border-radius:4px;position:relative;overflow:hidden}
+.card h3{color:var(--gold);margin-bottom:15px;font-size:20px}
+.card p{line-height:1.6;color:var(--lgray);font-size:15px}
+
+/* TABLE STYLES (FIRE & PRICE) */
+.table-container{width:100%;max-width:1000px;overflow-x:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:20px}
+table{width:100%;border-collapse:collapse}
+th,td{padding:15px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.1)}
+th{color:var(--gold);font-weight:700}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;width:100%;max-width:1100px;align-items:center}
+.col-img{width:100%;border-radius:8px;border:1px solid var(--gold)}
+
+/* MODULE WRAP (SLIDE 11) */
+.module-wrap{position:relative;width:100%;max-width:900px;background:#fff;padding:20px;border-radius:8px;color:#111;text-align:center}
+.module-img{width:100%;height:auto;display:block}
 .texture-gallery{display:grid;grid-template-columns:repeat(3, 1fr);gap:15px;margin-top:20px}
 .texture-item img{width:100%;border-radius:6px;border:2px solid var(--gold);cursor:pointer}
-.texture-item p{font-size:12px;font-weight:bold;margin-top:5px}
+.texture-item p{font-size:12px;font-weight:bold;margin-top:5px;color:#111}
+
+/* SURFACES SLIDE */
+.surface-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;width:100%;max-width:1100px}
+.s-card{background:rgba(255,255,255,0.05);padding:15px;text-align:center;border-radius:4px;border:1px solid rgba(255,255,255,0.1)}
 </style>
 </head>
 <body>
@@ -20,21 +66,48 @@
 <main id="main"></main>
 
 <script>
-/* ... (Keep your original constants and init function) ... */
 const SUPA_URL = "https://vqelnbvvbowchtvedntw.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZWxuYnZ2Ym93Y2h0dmVkbnR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzA5OTQsImV4cCI6MjA4ODA0Njk5NH0.SEoGh9L470qSxIUqmI-Uo-oyAGJol6RdrDpSGBp79DI";
 const _supabase = supabase.createClient(SUPA_URL, SUPA_KEY);
+
 const MOD_URL = "https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/module-sketch.jpeg";
 
-/* ... Keep all your original functions: renderFireTable, renderPriceTable, etc ... */
+let allSlides = [];
+let allContent = [];
+let current = 0;
 
-/* UPDATED MODULE RENDERER */
+async function init(){
+  const {data:s} = await _supabase.from('presentation_slides').select('*').order('slide_order');
+  const {data:c} = await _supabase.from('slide_content').select('*').order('block_order');
+  allSlides = s || [];
+  allContent = c || [];
+  render();
+}
+
+function gc(key){ return allContent.filter(x=>x.slide_key===key); }
+
+/* --- RENDERERS (THE SOUL OF THE PRESENTATION) --- */
+
+function renderCover(sl){
+  return `
+  <div class="slide active" id="slide-0" style="background:linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.8)), url('${sl.image_url}') center/cover;justify-content:center">
+    <div class="slide-header">
+      <div class="slide-label" style="color:${sl.accent_color}">דנסגלס® + באקסב-אקו®</div>
+      <h1 style="color:#fff">חידוש חזיתות – בית גולדמן נתניה</h1>
+      <div class="header-line" style="background:${sl.accent_color}"></div>
+      <button onclick="goTo(1)" style="background:${sl.accent_color};border:none;padding:15px 30px;color:#fff;font-weight:900;cursor:pointer;border-radius:4px;margin-top:20px">התחל מצגת</button>
+    </div>
+  </div>`;
+}
+
 function renderModule(sl){
   const textures = gc('module');
   return `
-  <div class="slide" id="slide-${allSlides.indexOf(sl)}" style="background:${sl.bg_color};padding-top:100px">
+  <div class="slide" id="slide-${allSlides.indexOf(sl)}" style="background:${sl.bg_color}">
     <div class="slide-header">
+      <div class="slide-label" style="color:${sl.accent_color}">מפרט טכני</div>
       <h1 style="color:#fff">#11 מודול הבנייה - חתך מערכת בשלושה גוונים</h1>
+      <div class="header-line" style="background:${sl.accent_color}"></div>
     </div>
     <div class="module-wrap">
       <img src="${MOD_URL}" class="module-img">
@@ -50,33 +123,51 @@ function renderModule(sl){
   </div>`;
 }
 
-/* THE RENDER LOOP (The Heart of your App) */
+function renderFireTable(sl){
+  return `<div class="slide" id="slide-${allSlides.indexOf(sl)}" style="background:${sl.bg_color}">
+    <div class="slide-header"><h1>בטיחות אש</h1></div>
+    <div class="table-container"><table><tr><th>בדיקה</th><th>תוצאה</th></tr>
+    ${gc('fire').map(b=>`<tr><td>${b.heading}</td><td>${b.body_text}</td></tr>`).join('')}
+    </table></div></div>`;
+}
+
+function renderGrid3(sl){
+  return `
+  <div class="slide" id="slide-${allSlides.indexOf(sl)}" style="background:${sl.bg_color}">
+    <div class="slide-header">
+      <div class="slide-label" style="color:${sl.accent_color}">${sl.title}</div>
+      <h1>${sl.title}</h1>
+      <div class="header-line" style="background:${sl.accent_color}"></div>
+    </div>
+    <div class="grid3">${gc(sl.slide_key).map(b=>`<div class="card"><h3>${b.heading}</h3><p>${b.body_text}</p></div>`).join('')}</div>
+  </div>`;
+}
+
 function render(){
   const main = document.getElementById('main');
   const nav = document.getElementById('nav');
   let html = '';
 
   allSlides.forEach((sl,i)=>{
-    // I am preserving your EXACT original layout logic
-    if     (sl.layout==='cover')   html += renderCover(sl); 
-    else if(sl.layout==='contact') html += renderContact(sl);
-    else if(sl.layout==='image_full' || sl.slide_key==='module') html += renderModule(sl);
-    else if(sl.layout==='table' && sl.slide_key==='fire')  html += renderFireTable(sl);
-    else if(sl.layout==='table' && sl.slide_key==='price') html += renderPriceTable(sl);
-    else if(sl.layout==='two-col') html += renderTwoCol(sl);
-    else if(sl.slide_key==='surfaces') html += renderSurfaces(sl);
+    if (sl.layout==='cover') html += renderCover(sl);
+    else if (sl.slide_key==='module') html += renderModule(sl);
+    else if (sl.slide_key==='fire') html += renderFireTable(sl);
     else html += renderGrid3(sl);
   });
 
   main.innerHTML = html;
-  
-  // NAV BAR FIX
   nav.innerHTML = allSlides.map((sl,i)=>`
     <button class="nav-btn ${i===0?'active':''}" onclick="goTo(${i})">${i===0 ? 'עמוד ראשי' : sl.title}</button>
   `).join('');
 }
 
-/* ... Keep your original goTo and event listener ... */
+function goTo(i){
+  document.querySelectorAll('.slide').forEach((s,j)=>s.classList.toggle('active',j===i));
+  document.querySelectorAll('.nav-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  current=i; window.scrollTo(0,0);
+}
+
+init();
 </script>
 </body>
 </html>
