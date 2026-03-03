@@ -38,19 +38,16 @@ h1{font-size:42px;font-weight:900;line-height:1.1;margin-bottom:15px}
 .card h3{color:var(--gold);margin-bottom:15px;font-size:20px}
 .card p{line-height:1.6;color:var(--lgray);font-size:15px}
 
-/* TWO COL */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;width:100%;max-width:1100px;align-items:center}
-.col-img{width:100%;border-radius:8px;border:1px solid var(--gold)}
-
 /* MODULE (SLIDE 11) */
 .module-wrap{position:relative;width:100%;max-width:900px;background:#fff;padding:20px;border-radius:8px;color:#111;text-align:center}
 .module-img{width:100%;height:auto;display:block}
 .texture-gallery{display:grid;grid-template-columns:repeat(3, 1fr);gap:15px;margin-top:20px}
-.texture-item img{width:100%;border-radius:6px;border:2px solid var(--gold);cursor:pointer}
-.texture-item p{font-size:12px;font-weight:bold;margin-top:5px}
+.texture-item img{width:100%;border-radius:6px;border:2px solid var(--gold);cursor:pointer;transition:0.3s}
+.texture-item img:hover{transform:scale(1.05)}
+.texture-item p{font-size:12px;font-weight:bold;margin-top:5px;color:#111}
 
-/* TABLE */
-.table-container{width:100%;max-width:1000px;overflow-x:auto;background:rgba(255,255,255,0.02);border-radius:8px}
+/* TABLES (Original Style) */
+.table-container{width:100%;max-width:1000px;overflow-x:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:20px}
 table{width:100%;border-collapse:collapse}
 th,td{padding:15px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.1)}
 th{color:var(--gold);font-weight:700}
@@ -82,7 +79,8 @@ async function init(){
 
 function gc(key){ return allContent.filter(x=>x.slide_key===key); }
 
-/* RENDERERS - ALL ORIGINAL STYLES RESTORED */
+/* --- THE ORIGINAL BEAUTIFUL RENDERERS --- */
+
 function renderCover(sl){
   return `
   <div class="slide active" id="slide-0" style="background:linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.8)), url('${sl.image_url}') center/cover;justify-content:center">
@@ -105,7 +103,7 @@ function renderModule(sl){
       <div class="header-line" style="background:${sl.accent_color}"></div>
     </div>
     <div class="module-wrap">
-      <img src="${MOD_URL}" class="module-img">
+      <img src="${MOD_URL}" class="module-img" alt="סקיצה">
       <div class="texture-gallery">
         ${textures.map(t => `
           <div class="texture-item">
@@ -145,7 +143,7 @@ function render(){
 
   allSlides.forEach((sl,i)=>{
     if (sl.layout==='cover') html += renderCover(sl);
-    else if (sl.slide_key==='module') html += renderModule(sl);
+    else if (sl.slide_key==='module' || sl.layout==='image_full') html += renderModule(sl);
     else html += renderGrid3(sl);
   });
 
