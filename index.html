@@ -2,10 +2,40 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a2e">
 <title>דנסגלס® + באקסב-אקו® — מערכת חידוש חזיתות</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+/* ── SWIPE — top-zone only (avoids scroll conflict) ── */
+(function(){
+  let startX=0, startY=0, startInZone=false;
+  const ZONE_HEIGHT = 160; // px from top — above most scroll content
+  const MIN_SWIPE = 60;
+
+  document.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    // Only activate swipe if touch starts in top zone OR bottom nav zone
+    startInZone = (startY < ZONE_HEIGHT) || (startY > window.innerHeight - 100);
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    if(!startInZone) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if(Math.abs(dx) < MIN_SWIPE) return;
+    if(Math.abs(dy) > Math.abs(dx)) return;
+    const total = window._totalSlides || document.querySelectorAll('.slide').length;
+    if(dx < -MIN_SWIPE) goTo(Math.min(current+1, total-1));
+    if(dx >  MIN_SWIPE) goTo(Math.max(current-1, 0));
+  }, { passive: true });
+})();
+
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -192,9 +222,151 @@ main{padding-top:56px}
   .slide{display:block!important;page-break-after:always;min-height:100vh;padding:36px}
   main{padding-top:0}
 }
+
+/* ═══════════════════════════════════════
+   MOBILE — Android & iOS
+═══════════════════════════════════════ */
+@media(max-width:640px){
+
+  /* NAV — bottom tab bar on mobile */
+  nav{
+    top:auto; bottom:0; right:0; left:0;
+    padding:6px 8px 10px;
+    flex-direction:column; gap:4px;
+    border-top:1px solid rgba(201,147,58,0.3);
+    border-bottom:none;
+  }
+  .nav-title{ font-size:11px; margin-left:0; margin-bottom:2px; }
+  #nav-buttons{
+    display:flex; flex-wrap:nowrap; overflow-x:auto;
+    gap:6px; padding-bottom:2px; -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  #nav-buttons::-webkit-scrollbar{ display:none; }
+  .nav-btn{ font-size:10px; padding:6px 10px; white-space:nowrap; flex-shrink:0; }
+  .nav-left{ display:none; }  /* hide print on mobile */
+
+  /* MAIN — extra bottom padding for nav bar */
+  main{ padding-top:8px; padding-bottom:90px; }
+
+  /* SLIDES */
+  .slide{ padding:16px 14px 20px; min-height:auto; }
+  .slide-header h1{ font-size:22px; }
+  .slide-header p{ font-size:12px; }
+
+  /* COVER */
+  .cover-wrap{ grid-template-columns:1fr; gap:20px; min-height:auto; }
+  .cover-title{ font-size:28px; }
+  .cover-sub{ font-size:14px; }
+
+  /* GRIDS → single column */
+  .grid3{ grid-template-columns:1fr; }
+  .two-col{ grid-template-columns:1fr; }
+  .two-tables{ grid-template-columns:1fr; }
+  .colors-grid{ grid-template-columns:1fr 1fr; gap:10px; }
+  .surface-grid{ grid-template-columns:1fr 1fr; }
+  .stats-row{ grid-template-columns:1fr 1fr; }
+  .price-notes{ grid-template-columns:1fr 1fr; }
+
+  /* TABLES — scrollable */
+  .price-wrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .data-table{ font-size:10px; }
+  .data-table th, .data-table td{ padding:6px 8px; }
+
+  /* SPEC rows */
+  .spec-key{ width:80px; font-size:8px; }
+  .spec-val{ font-size:10px; }
+
+  /* IMAGES */
+  .hero-img{ height:180px; }
+  .product-img{ height:140px; }
+  .color-card img{ height:160px; }
+
+  /* MODULE 3-colors → stack */
+  .colors-grid{ grid-template-columns:1fr; }
+
+  /* TAB 12 — gantt + journal stack */
+  #slide-operations > div > div:first-child,
+  #slide-operations > div > div:last-child{ width:100%; }
+  #slide-operations > div{ grid-template-columns:1fr !important; }
+
+  /* TAB 13 — team cards stack */
+  #slide-team > div:nth-child(2){ grid-template-columns:1fr !important; }
+
+  /* TAB 15 — process stack */
+  #slide-process > div:last-child{ grid-template-columns:1fr !important; }
+
+  /* IFRAME — shrink height on mobile */
+  iframe{ min-height:320px !important; height:320px !important; }
+
+  /* VIDEO */
+  video{ max-height:220px; }
+
+  /* LIGHTBOX */
+  #lb-img{ max-width:96vw; max-height:75vh; }
+
+  /* EPD bar */
+  .epd-bar{ flex-wrap:wrap; font-size:10px; }
+
+  /* contact */
+  .contact-box{ padding:18px 20px; }
+  .contact-wrap h1{ font-size:26px; }
+
+  /* weight bar */
+  .weight-bar{ font-size:10px; line-height:1.8; }
+}
+
+/* SWIPE support */
+.slide{ touch-action:pan-y; }
+
+/* Tap highlight remove */
+*{ -webkit-tap-highlight-color:transparent; }
+
+/* Smooth scroll */
+html{ scroll-behavior:smooth; -webkit-overflow-scrolling:touch; }
+
+
+/* TOUCH-ACTION FIX — prevent scroll blocking swipe */
+.slide { touch-action: pan-y pinch-zoom; }
+#nav-buttons { touch-action: pan-x; }
+
+
+/* SWIPE ARROW BUTTONS — visible on mobile only */
+.sw-prev, .sw-next {
+  display: none;
+}
+@media(max-width:640px){
+  .sw-prev, .sw-next {
+    display: flex;
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 998;
+    width: 36px;
+    height: 72px;
+    align-items: center;
+    justify-content: center;
+    background: rgba(13,92,99,0.75);
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: #fff;
+    border-radius: 8px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .sw-prev { right: 0; border-radius: 8px 0 0 8px; }
+  .sw-next { left: 0;  border-radius: 0 8px 8px 0; }
+  .sw-prev:active, .sw-next:active { background: rgba(201,147,58,0.9); }
+}
+
 </style>
 </head>
 <body>
+
+<!-- SWIPE ARROWS — mobile only -->
+<button class="sw-prev" onclick="goTo(Math.max(current-1,0))" aria-label="הקודם">&#8250;</button>
+<button class="sw-next" onclick="goTo(Math.min(current+1,(window._totalSlides||15)-1))" aria-label="הבא">&#8249;</button>
 
 <!-- LIGHTBOX -->
 <div id="lightbox">
@@ -310,7 +482,7 @@ function renderGrid3(sl){
           <div class="card-body">${item.body_text||''}</div>
         </div>`).join('')}
     </div>
-    ${sl.slide_key==='system'?`<div class="weight-bar">⚡ משקל כולל של המערכת ≈ 12-15 ק"ג/מ"ר &nbsp;·&nbsp; חזית בטון מסורתית: 80-120 ק"ג/מ"ר &nbsp;·&nbsp; חיסכון במשקל: ~85%</div>`:''}
+    ${sl.slide_key==='system'?`<div class="weight-bar">⚡ משקל כולל של המערכת ≈ 12-15 ק"ג/מ"ר &nbsp;·&nbsp; חזית בטון מסורתית: 80-120 ק"ג/מ"ר &nbsp;·&nbsp; חיסכון במשקל: ~85%</div><div style="margin-top:28px;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:2px solid rgba(201,147,58,0.3);cursor:zoom-in" onclick="openLB('https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/infographic.png','מערכת חידוש חזיתות — דנסגלס® + באקסב-אקו®'"><img src="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/infographic.png" style="width:100%;display:block" alt="אינפוגרפיקה מערכת חזיתות" onerror="this.style.display='none'"><div style="background:rgba(0,0,0,0.55);padding:9px 20px;text-align:center;font-size:11px;color:rgba(255,255,255,0.5)">🔍 לחץ להגדלה מלאה</div></div>`:''}
     ${sl.slide_key==='challenge'?`<div style="background:${sl.accent_color};border-radius:10px;padding:11px 18px;margin-top:18px;font-size:12px;font-weight:700;color:#fff">✅ הפתרון שלנו: מסגרת אלומיניום + לוח דנסגלס® עמיד אש + מיקרוטופינג באקסב-אקו® ללא VOC — קל, בטוח, יפה, עומד בתקנות.</div>`:''}
   </div>`;
 }
@@ -538,9 +710,9 @@ function renderPriceTable(sl){
           ⬇️ הורד PDF
         </a>
       </div>
-      <iframe src="${PDF_OFFER}"
+      <iframe data-src="${PDF_OFFER}" src="about:blank"
               style="width:100%;height:68vh;border:none;display:block"
-              title="הצעת מחיר בית פלדמן">
+              class="lazy-iframe" title="הצעת מחיר בית פלדמן">
       </iframe>
     </div>
 
@@ -659,6 +831,555 @@ function renderContact(sl){
   </div>`;
 }
 
+/* ── WORK PLAN — TAB 12 ── */
+function renderWorkPlan(){
+  const today = new Date();
+  const projectStart = new Date('2026-03-02');
+
+  const tasks = [
+    { name:'סקר שטח ומדידות',        start:0,  dur:2,  done:100, owner:'בני פרסקי',   color:'#0d5c63' },
+    { name:'הגשת הצעת מחיר',          start:1,  dur:1,  done:100, owner:'בני פרסקי',   color:'#0d5c63' },
+    { name:'אישור לקוח + חתימה',      start:3,  dur:2,  done:60,  owner:'מגנזי שניר',  color:'#c9933a' },
+    { name:'הזמנת חומרים — שלב א׳',   start:5,  dur:3,  done:40,  owner:'אבשי ספיר',   color:'#0d5c63' },
+    { name:'פירוק חזית קיימת',         start:7,  dur:4,  done:0,   owner:'צוות שטח',    color:'#dc2626' },
+    { name:'התקנת מסגרת אלומיניום',   start:10, dur:5,  done:0,   owner:'צוות מתכת',   color:'#0d5c63' },
+    { name:'התקנת לוחות דנסגלס®',     start:14, dur:4,  done:0,   owner:'צוות שטח',    color:'#0d5c63' },
+    { name:'שלב א׳ — מיקרוטופינג',    start:17, dur:6,  done:0,   owner:'אבשי ספיר',   color:'#2d9e6b' },
+    { name:'ייבוש + בדיקת איכות',     start:23, dur:3,  done:0,   owner:'Topcret®',    color:'#c9933a' },
+    { name:'הזמנת חומרים — שלב ב׳',   start:25, dur:2,  done:0,   owner:'אבשי ספיר',   color:'#0d5c63' },
+    { name:'שלב ב׳ — מיקרוטופינג',    start:28, dur:6,  done:0,   owner:'אבשי ספיר',   color:'#2d9e6b' },
+    { name:'גימור + ניקיון שטח',       start:33, dur:3,  done:0,   owner:'צוות שטח',    color:'#0d5c63' },
+    { name:'מסירה ובדיקה סופית',       start:36, dur:2,  done:0,   owner:'בני פרסקי',   color:'#c9933a' },
+  ];
+
+  const totalDays = 40;
+  const daysSinceStart = Math.floor((today - projectStart) / 86400000);
+  const todayPct = Math.min(100, Math.max(0, (daysSinceStart / totalDays) * 100));
+
+  const ganttRows = tasks.map(t => {
+    const leftPct  = (t.start / totalDays) * 100;
+    const widthPct = (t.dur   / totalDays) * 100;
+    const doneW    = widthPct * (t.done / 100);
+    return `
+      <div style="display:grid;grid-template-columns:180px 1fr 90px;gap:8px;align-items:center;
+                  padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+        <div style="font-size:10px;color:#ccc;text-align:right;padding-left:8px;line-height:1.4">${t.name}</div>
+        <div style="position:relative;height:22px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden">
+          <div style="position:absolute;right:${leftPct}%;width:${widthPct}%;height:100%;
+                      background:${t.color}22;border-radius:4px;border:1px solid ${t.color}66"></div>
+          <div style="position:absolute;right:${leftPct}%;width:${doneW}%;height:100%;
+                      background:${t.color};border-radius:4px;opacity:0.85"></div>
+        </div>
+        <div style="font-size:9px;color:#888;text-align:center">${t.owner}</div>
+      </div>`;
+  }).join('');
+
+  const weeks = ['1 מרץ','8 מרץ','15 מרץ','22 מרץ','29 מרץ','5 אפר','12 אפר'];
+  const weekHeaders = `
+    <div style="display:grid;grid-template-columns:180px 1fr 90px;gap:8px;margin-bottom:4px">
+      <div></div>
+      <div style="display:flex;justify-content:space-between;padding:0 2px">
+        ${weeks.map(w=>`<span style="font-size:8px;color:#666">${w}</span>`).join('')}
+      </div>
+      <div></div>
+    </div>`;
+
+  return `
+  <div class="slide" id="slide-operations" style="background:#0f1420;padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:var(--gold)">ניהול פרויקט</div>
+      <h1 style="color:#fff">נהלי עבודה — בית פלדמן נתניה</h1>
+      <p style="color:var(--lgray)">יומן עבודה · גנט פעילות · מעקב התקדמות</p>
+      <div class="header-line" style="background:var(--gold)"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+      <!-- GANTT -->
+      <div style="background:#1a2030;border-radius:14px;padding:20px;border:1px solid rgba(201,147,58,0.2)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div>
+            <div style="font-size:14px;font-weight:900;color:var(--gold)">📊 גנט פעילות</div>
+            <div style="font-size:10px;color:#666;margin-top:3px">בית פלדמן נתניה · מרץ–אפריל 2026</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:20px;font-weight:900;color:var(--green)">${Math.round(tasks.reduce((a,t)=>a+t.done,0)/tasks.length)}%</div>
+            <div style="font-size:9px;color:#666">התקדמות כוללת</div>
+          </div>
+        </div>
+
+        <!-- progress bar today -->
+        <div style="position:relative;height:3px;background:rgba(255,255,255,0.1);
+                    border-radius:2px;margin-bottom:12px;overflow:visible">
+          <div style="position:absolute;right:0;width:${todayPct}%;height:100%;
+                      background:var(--gold);border-radius:2px"></div>
+          <div style="position:absolute;right:${todayPct}%;top:-8px;
+                      font-size:8px;color:var(--gold);white-space:nowrap;transform:translateX(50%)">
+            ▼ היום
+          </div>
+        </div>
+
+        ${weekHeaders}
+        <div>${ganttRows}</div>
+
+        <!-- legend -->
+        <div style="display:flex;gap:16px;margin-top:14px;flex-wrap:wrap">
+          ${[['#0d5c63','התקנה'],['#2d9e6b','מיקרוטופינג'],['#c9933a','תיאום'],['#dc2626','פירוק']].map(([c,l])=>`
+            <div style="display:flex;align-items:center;gap:5px">
+              <div style="width:12px;height:12px;background:${c};border-radius:3px"></div>
+              <span style="font-size:9px;color:#888">${l}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- WORK JOURNAL IFRAME -->
+      <div style="background:#1a2030;border-radius:14px;overflow:hidden;
+                  border:1px solid rgba(201,147,58,0.2);display:flex;flex-direction:column">
+        <div style="background:var(--teal);padding:12px 18px;display:flex;
+                    align-items:center;justify-content:space-between;flex-shrink:0">
+          <div>
+            <div style="font-size:13px;font-weight:900;color:#fff">📓 יומן עבודה</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.6);margin-top:2px">בית פלדמן נתניה</div>
+          </div>
+          <a href="https://avshi2-maker.github.io/work-journal/" target="_blank"
+             style="background:var(--gold);color:var(--dark);padding:6px 14px;
+                    border-radius:16px;font-size:10px;font-weight:900;text-decoration:none">
+            🔗 פתח בחלון מלא
+          </a>
+        </div>
+        <iframe data-src="https://avshi2-maker.github.io/work-journal/" src="about:blank"
+                style="flex:1;width:100%;min-height:520px;border:none;background:#fff"
+                class="lazy-iframe" title="יומן עבודה">
+        </iframe>
+        <div style="padding:8px 16px;background:#131925;font-size:9px;color:#555;text-align:center">
+          אם היומן לא נטען — לחץ "פתח בחלון מלא" למעלה
+        </div>
+      </div>
+
+    </div>
+
+    <!-- status bar -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px">
+      ${[
+        ['📅','תאריך התחלה','2 מרץ 2026','var(--teal)'],
+        ['🏁','מסירה מתוכננת','10 אפריל 2026','var(--gold)'],
+        ['👷','צוות מבצע','בני פרסקי + אבשי ספיר','var(--green)'],
+        ['📍','פרויקט','בית פלדמן — נתניה','var(--teal)'],
+      ].map(([ico,label,val,clr])=>`
+        <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;
+                    border-right:3px solid ${clr}">
+          <div style="font-size:10px;color:#666;margin-bottom:4px">${ico} ${label}</div>
+          <div style="font-size:12px;font-weight:700;color:#fff">${val}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ── MICROTOPPING PROCESS — TAB 15 ── */
+function renderProcess(){
+  // Set video URL after uploading to Supabase:
+  const VIDEO_URL = 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/application_video.mp4';
+
+  const steps = [
+    { n:'01', title:'הכנת המשטח', icon:'🧹', color:'#0d5c63',
+      body:'ניקוי יסודי של לוח הדנסגלס®. הסרת אבק, שמן וכל חומר זר. בדיקת יציבות ואחידות המשטח. שיוף קל במידת הצורך.' },
+    { n:'02', title:'שכבת פריימר', icon:'🖌️', color:'#0d5c63',
+      body:'יישום פריימר Topcret® ייעודי לדנסגלס®. יצירת הידבקות מרבית בין הלוח למיקרו-מלט. זמן ייבוש: 2-4 שעות.' },
+    { n:'03', title:'שכבת בסיס — Baxab®', icon:'🪣', color:'#2d9e6b',
+      body:'ערבוב שכבת הבסיס לפי יחס Topcret® המדויק. יישום בעזרת מגרד נירוסטה בתנועות אחידות. עובי: 1.5 מ"מ.' },
+    { n:'04', title:'ייבוש שכבת בסיס', icon:'⏱️', color:'#c9933a',
+      body:'המתנה של 24 שעות לפחות. בדיקת אחידות המשטח. שיוף עדין במידת הצורך לפני שכבת הגימור.' },
+    { n:'05', title:'שכבת גימור — Baxab®', icon:'✨', color:'#2d9e6b',
+      body:'יישום שכבת הגימור בצבע הנבחר. תנועות מגרד מדויקות ליצירת מרקם אחיד. עובי: 0.5-1 מ"מ.' },
+    { n:'06', title:'איטום — Sealer', icon:'🛡️', color:'#0d5c63',
+      body:'יישום 2 שכבות סיילר Topcret® לאטימה מלאה. הגנת UV לשימוש חיצוני. ייבוש 6 שעות בין שכבות.' },
+  ];
+
+  return `
+  <div class="slide" id="slide-process" style="background:#0f1420;padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:var(--gold)">מדריך טכני</div>
+      <h1 style="color:#fff">תהליך מריחת מיקרוטופינג</h1>
+      <p style="color:var(--lgray)">באקסב-אקו® על לוחות דנסגלס® — 6 שלבים מקצועיים</p>
+      <div class="header-line" style="background:var(--gold)"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+      <!-- LEFT: VIDEO -->
+      <div>
+        <div style="background:#1a2030;border-radius:14px;overflow:hidden;
+                    border:1px solid rgba(201,147,58,0.25)">
+          <div style="background:var(--teal);padding:10px 18px;display:flex;
+                      align-items:center;justify-content:space-between">
+            <span style="font-size:12px;font-weight:900;color:#fff">🎬 וידאו — תהליך היישום</span>
+            ${VIDEO_URL ? `<a href="${VIDEO_URL}" target="_blank"
+               style="background:var(--gold);color:var(--dark);padding:5px 12px;
+                      border-radius:12px;font-size:10px;font-weight:900;text-decoration:none">
+              ⬇️ הורד
+            </a>` : ''}
+          </div>
+
+          ${VIDEO_URL ? `
+            <video controls playsinline
+                   style="width:100%;max-height:340px;display:block;background:#000">
+              <source src="${VIDEO_URL}" type="video/mp4">
+              <source src="${VIDEO_URL}" type="video/quicktime">
+              הדפדפן שלך אינו תומך בוידאו —
+              <a href="${VIDEO_URL}" style="color:var(--gold)">לחץ להורדה</a>
+            </video>
+          ` : `
+            <!-- placeholder -->
+            <div style="height:300px;display:flex;flex-direction:column;align-items:center;
+                        justify-content:center;background:#131925">
+              <div style="font-size:64px;margin-bottom:16px;opacity:0.25">🎬</div>
+              <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,0.3);margin-bottom:8px">
+                וידאו בדרך
+              </div>
+              <div style="font-size:11px;color:#444;text-align:center;max-width:280px;line-height:1.8">
+                העלה קובץ MP4/MOV לבאקט Supabase<br>
+                ועדכן את VIDEO_URL בקוד טאב 15
+              </div>
+              <div style="margin-top:20px;background:rgba(201,147,58,0.1);border:1px dashed rgba(201,147,58,0.3);
+                          border-radius:8px;padding:10px 18px;font-size:10px;color:var(--gold);font-weight:700">
+                📤 Upload → facade-images bucket
+              </div>
+            </div>
+          `}
+        </div>
+
+        <!-- key facts below video -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+          ${[
+            ['⏱️','זמן יישום','2-3 ימי עבודה'],
+            ['📐','עובי סופי','2-3 מ"מ'],
+            ['💧','אטימה','מיידית לאחר סיילר'],
+            ['🎨','צבע','לפי בחירת הלקוח'],
+          ].map(([ico,label,val])=>`
+            <div style="background:#1a2030;border-radius:10px;padding:12px;
+                        border:1px solid rgba(255,255,255,0.06);text-align:center">
+              <div style="font-size:20px;margin-bottom:6px">${ico}</div>
+              <div style="font-size:9px;color:#666;margin-bottom:3px">${label}</div>
+              <div style="font-size:12px;font-weight:700;color:#fff">${val}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- RIGHT: STEPS -->
+      <div>
+        <div style="font-size:11px;font-weight:900;color:var(--gold);
+                    margin-bottom:14px;letter-spacing:1px">6 שלבי היישום המקצועי</div>
+        ${steps.map(s=>`
+          <div style="display:flex;gap:12px;background:#1a2030;border-radius:10px;
+                      padding:13px;margin-bottom:10px;
+                      border-right:4px solid ${s.color};direction:rtl">
+            <div style="flex-shrink:0;text-align:center">
+              <div style="background:${s.color};color:#fff;border-radius:8px;
+                          width:36px;height:36px;font-size:11px;font-weight:900;
+                          display:flex;align-items:center;justify-content:center">${s.n}</div>
+              <div style="font-size:18px;margin-top:6px">${s.icon}</div>
+            </div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:900;color:#fff;margin-bottom:5px">${s.title}</div>
+              <div style="font-size:10px;color:#999;line-height:1.8">${s.body}</div>
+            </div>
+          </div>`).join('')}
+
+        <div style="background:rgba(45,158,107,0.1);border:1px solid rgba(45,158,107,0.3);
+                    border-radius:10px;padding:12px 16px;margin-top:4px;direction:rtl">
+          <div style="font-size:10px;font-weight:900;color:var(--green);margin-bottom:6px">
+            ✅ תקן Topcret® — מיישם מוסמך בלבד
+          </div>
+          <div style="font-size:10px;color:#888;line-height:1.8">
+            כל שלבי היישום מבוצעים לפי פרוטוקול Topcret® המחייב.
+            רק מיישמים מוסמכים רשאים לבצע ולקבל את אחריות היצרן.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+/* ── SITE PHOTOS — TAB 14 ── */
+function renderSitePhotos(){
+  // Photo URLs — add here when Avshi uploads to Supabase bucket
+  const photos = [
+    { url: 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/1.jpeg', caption: 'מצב חזית קיימת — מבט 1' },
+    { url: 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/2.jpeg', caption: 'מצב חזית קיימת — מבט 2' },
+    { url: 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/3.jpeg', caption: 'מצב חזית קיימת — מבט 3' },
+    { url: 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/4.jpeg', caption: 'מצב חזית קיימת — מבט 4' },
+    { url: 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/5.jpeg', caption: 'מצב חזית קיימת — מבט 5' },
+  ];
+
+  return `
+  <div class="slide" id="slide-sitephotos" style="background:#0f1420;padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:var(--gold)">תיעוד שטח</div>
+      <h1 style="color:#fff">תמונות מצב קיים</h1>
+      <p style="color:var(--lgray)">בית פלדמן נתניה — מצב החזיתות לפני השיפוץ</p>
+      <div class="header-line" style="background:var(--gold)"></div>
+    </div>
+
+    ${photos.length === 0 ? `
+      <!-- PLACEHOLDER — תמונות בדרך -->
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  min-height:55vh;text-align:center">
+        <div style="font-size:72px;margin-bottom:24px;opacity:0.3">📷</div>
+        <div style="font-size:20px;font-weight:900;color:rgba(255,255,255,0.4);margin-bottom:12px">
+          תמונות יועלו בקרוב
+        </div>
+        <div style="font-size:13px;color:#555;max-width:400px;line-height:1.8">
+          העלה תמונות לבאקט Supabase<br>
+          <code style="font-size:11px;color:var(--teal);background:rgba(13,92,99,0.15);
+                       padding:2px 8px;border-radius:4px">facade-images</code><br>
+          ועדכן את רשימת ה-URLs בקוד
+        </div>
+        <div style="margin-top:28px;background:rgba(201,147,58,0.08);border:1px dashed rgba(201,147,58,0.3);
+                    border-radius:12px;padding:20px 32px">
+          <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:10px">
+            📋 מה לצלם
+          </div>
+          ${['מבט כללי על החזית הקיימת','סדקים וקילופים בבטון','פינות ואזורי נזק','חלונות ודלתות — מסגרות','תשתית — יסודות נראים לעין','מבט מהרחוב — זווית מלאה'].map((item,i)=>`
+            <div style="display:flex;gap:10px;align-items:center;padding:5px 0;
+                        border-bottom:1px solid rgba(255,255,255,0.05);direction:rtl">
+              <span style="background:var(--gold);color:var(--dark);border-radius:50%;
+                           width:20px;height:20px;font-size:9px;font-weight:900;
+                           display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</span>
+              <span style="font-size:11px;color:#aaa">${item}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+    ` : `
+      <!-- PHOTO GRID — when photos are added -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:16px">
+        ${photos.map((p,i)=>`
+          <div style="border-radius:12px;overflow:hidden;cursor:zoom-in;
+                      box-shadow:0 6px 24px rgba(0,0,0,0.4);
+                      transition:transform 0.2s" onclick="openLB('${p.url}','${p.caption}')">
+            <img src="${p.url}" alt="${p.caption}"
+                 style="width:100%;height:220px;object-fit:cover;display:block">
+            <div style="background:#1a2030;padding:10px 14px;font-size:11px;
+                        color:#ccc;direction:rtl">${p.caption}</div>
+          </div>`).join('')}
+      </div>
+    `}
+
+    <!-- upload instructions -->
+    <div style="margin-top:20px;background:rgba(13,92,99,0.1);border:1px solid rgba(13,92,99,0.25);
+                border-radius:10px;padding:12px 18px;font-size:10px;color:#666;
+                display:flex;align-items:center;gap:10px;direction:rtl">
+      <span style="font-size:18px">💡</span>
+      <span>להוספת תמונות: העלה ל-Supabase bucket → <code style="color:var(--teal)">facade-images</code> → 
+      הוסף URL לרשימת <code style="color:var(--teal)">photos</code> בקוד טאב 14</span>
+    </div>
+  </div>`;
+}
+
+/* ── TEAM CVs — TAB 13 ── */
+function renderTeam(){
+  const AVSHI_CV = 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/profieAvshi.pdf';
+  return `
+  <div class="slide" id="slide-team" style="background:#0f1420;padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:var(--gold)">קבוצת ביצוע</div>
+      <h1 style="color:#fff">קורות חיים — צוות הפרויקט</h1>
+      <p style="color:var(--lgray)">אנשי מקצוע מנוסים · תכנון · ביצוע · פיקוח · ציפוי</p>
+      <div class="header-line" style="background:var(--gold)"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px">
+
+      <!-- בני פרסקי -->
+      <div style="background:#1a2030;border-radius:16px;overflow:hidden;
+                  border:1px solid rgba(201,147,58,0.25)">
+        <!-- header card -->
+        <div style="background:linear-gradient(135deg,var(--teal),var(--teal2));
+                    padding:28px 24px;text-align:center;position:relative">
+          <div style="width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.15);
+                      margin:0 auto 14px;display:flex;align-items:center;justify-content:center;
+                      font-size:36px;border:3px solid rgba(201,147,58,0.5)">👷</div>
+          <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:6px">בני פרסקי</div>
+          <div style="font-size:12px;color:var(--gold);font-weight:700;letter-spacing:1px">
+            תכנון · ביצוע · פיקוח
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:6px">
+            מנהל פרויקט ראשי
+          </div>
+        </div>
+        <!-- body -->
+        <div style="padding:22px 24px">
+          ${[
+            ['🎓','הכשרה','הנדסאי בנין מוסמך · מנהל עבודה מוסמך'],
+            ['📋','תפקיד בפרויקט','תכנון מערכת החזית · ניהול ביצוע · פיקוח על איכות'],
+            ['🏗️','התמחות','שיפוצי חזיתות · פרויקטים מורכבים · שימור מבנים היסטוריים'],
+            ['📍','ניסיון','20+ שנות ניסיון בניהול פרויקטי בנייה ושיפוץ'],
+            ['✅','אחריות','מסירה בזמן · עמידה בתקציב · פיקוח יומי בשטח'],
+          ].map(([ico,label,val])=>`
+            <div style="display:flex;gap:12px;padding:9px 0;
+                        border-bottom:1px solid rgba(255,255,255,0.06);align-items:flex-start">
+              <span style="font-size:16px;flex-shrink:0;width:24px;text-align:center;margin-top:1px">${ico}</span>
+              <div>
+                <div style="font-size:9px;font-weight:900;color:var(--gold);
+                            letter-spacing:1px;margin-bottom:3px">${label}</div>
+                <div style="font-size:11px;color:#ccc;line-height:1.6">${val}</div>
+              </div>
+            </div>`).join('')}
+
+          <div style="margin-top:18px;background:rgba(13,92,99,0.2);border-radius:10px;
+                      padding:12px 16px;border:1px solid rgba(13,92,99,0.4)">
+            <div style="font-size:10px;color:var(--teal);font-weight:900;margin-bottom:6px">
+              🏆 פרויקטים נבחרים
+            </div>
+            <div style="font-size:10px;color:#aaa;line-height:2">
+              · שיפוץ חזיתות בית גולדמן נתניה<br>
+              · פרויקט חזיתות בית פלדמן נתניה (נוכחי)<br>
+              · שיפוצי בניינים רב-קומתיים — מרכז הארץ
+            </div>
+          </div>
+
+          <div style="margin-top:14px;background:rgba(201,147,58,0.08);border-radius:10px;
+                      padding:10px 14px;font-size:10px;color:#999;text-align:center;
+                      border:1px dashed rgba(201,147,58,0.25)">
+            📄 קורות חיים מלאים — זמינים על פי בקשה
+          </div>
+        </div>
+      </div>
+
+      <!-- אבשי ספיר -->
+      <div style="background:#1a2030;border-radius:16px;overflow:hidden;
+                  border:1px solid rgba(45,158,107,0.3)">
+        <!-- header card -->
+        <div style="background:linear-gradient(135deg,#1a3a2a,#0d2e1e);
+                    padding:28px 24px;text-align:center;position:relative">
+          <img src="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/handlogo.jpg"
+              style="width:80px;height:80px;border-radius:50%;object-fit:cover;
+                     margin:0 auto 14px;display:block;
+                     border:3px solid rgba(45,158,107,0.5)">
+          <div style="font-size:22px;font-weight:900;color:#fff;margin-bottom:6px">אבשי ספיר</div>
+          <div style="font-size:12px;color:var(--green);font-weight:700;letter-spacing:1px">
+            ציפוי לוחות במיקרוטופינג
+          </div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5);margin-top:6px">
+            מומחה יישום באקסב-אקו® · מיישם מוסמך Topcret®
+          </div>
+        </div>
+        <!-- body -->
+        <div style="padding:22px 24px">
+          ${[
+            ['🎓','הכשרה','נציג מוסמך יצרן האפוקסי הגדול בעולם Stonhard · stonhard.com · ריצוף וחיפוי מקצועי'],
+            ['📋','תפקיד בפרויקט','יישום באקסב-אקו® על לוחות דנסגלס® · הכנת משטח · גימור'],
+            ['🏗️','התמחות','מאות פרויקטים בעבודות אפוקסי ומיקרוטופינג · חזיתות · רצפות · קירות · עבודות גדולות: אינטל פאב 18 ו-28 — כ-100,000 מ"ר'],
+            ['📍','ניסיון','30+ שנות ניסיון · עבודות תעשייתיות ומסחריות בסטנדרטים בינלאומיים'],
+            ['✅','אחריות','יישום לפי תקן Topcret® · אחריות על עבודת הציפוי'],
+          ].map(([ico,label,val])=>`
+            <div style="display:flex;gap:12px;padding:9px 0;
+                        border-bottom:1px solid rgba(255,255,255,0.06);align-items:flex-start">
+              <span style="font-size:16px;flex-shrink:0;width:24px;text-align:center;margin-top:1px">${ico}</span>
+              <div>
+                <div style="font-size:9px;font-weight:900;color:var(--green);
+                            letter-spacing:1px;margin-bottom:3px">${label}</div>
+                <div style="font-size:11px;color:#ccc;line-height:1.6">${val}</div>
+              </div>
+            </div>`).join('')}
+
+          <div style="margin-top:18px;background:rgba(45,158,107,0.1);border-radius:10px;
+                      padding:12px 16px;border:1px solid rgba(45,158,107,0.3)">
+            <div style="font-size:10px;color:var(--green);font-weight:900;margin-bottom:6px">
+              🏆 פרויקטים נבחרים
+            </div>
+            <div style="font-size:10px;color:#aaa;line-height:2">
+              · מיקרוטופינג חזיתות — בית פלדמן נתניה (נוכחי)<br>
+              · ציפויי מיקרו-מלט לרצפות ולקירות — מגורים ומסחר<br>
+              · פרויקטי חזיתות באקסב-אקו® — מרכז הארץ
+            </div>
+          </div>
+
+          <!-- Stonhard badge -->
+          <div style="margin-top:14px;background:rgba(255,255,255,0.04);border-radius:10px;
+                      padding:12px 16px;border:1px solid rgba(45,158,107,0.25);direction:rtl">
+            <div style="font-size:10px;color:var(--green);font-weight:900;margin-bottom:6px">
+              🏅 הסמכות מיוחדות
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <div>
+                <div style="font-size:11px;font-weight:700;color:#fff">נציג מוסמך — Stonhard®</div>
+                <div style="font-size:10px;color:#888;margin-top:2px">יצרן האפוקסי הגדול בעולם</div>
+                <a href="https://www.stonhard.com" target="_blank"
+                   style="font-size:9px;color:var(--green);text-decoration:none;font-weight:700">
+                  🔗 www.stonhard.com
+                </a>
+              </div>
+              <div style="margin-right:auto;background:rgba(45,158,107,0.2);border:1px solid var(--green);
+                          border-radius:8px;padding:6px 12px;text-align:center">
+                <div style="font-size:18px">🌍</div>
+                <div style="font-size:8px;color:var(--green);font-weight:900">CERTIFIED</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;font-size:10px;color:#888;line-height:1.8">
+              ⭐ אינטל פאב 18 ו-28 — כ-100,000 מ"ר אפוקסי תעשייתי
+            </div>
+          </div>
+          <div style="margin-top:14px">
+            <div style="font-size:10px;font-weight:900;color:var(--green);
+                        margin-bottom:8px;letter-spacing:1px">📄 קורות חיים מלאים</div>
+            <div style="background:#fff;border-radius:10px;overflow:hidden;
+                        box-shadow:0 4px 16px rgba(0,0,0,0.3)">
+              <div style="background:var(--green);padding:8px 14px;display:flex;
+                          align-items:center;justify-content:space-between">
+                <span style="font-size:11px;font-weight:700;color:#fff">אבשי ספיר — פרופיל מקצועי</span>
+                <a href="${AVSHI_CV}" target="_blank"
+                   style="background:var(--gold);color:var(--dark);padding:5px 12px;
+                          border-radius:12px;font-size:10px;font-weight:900;text-decoration:none">
+                  ⬇️ הורד PDF
+                </a>
+              </div>
+              <iframe data-src="${AVSHI_CV}" src="about:blank"
+                      style="width:100%;height:320px;border:none;display:block"
+                      class="lazy-iframe" title="קורות חיים אבשי ספיר">
+              </iframe>
+            </div>
+            <div style="text-align:center;margin-top:6px;font-size:9px;color:#555">
+              אם ה-PDF לא נטען —
+              <a href="${AVSHI_CV}" target="_blank"
+                 style="color:var(--green);font-weight:700">פתח בחלון חדש</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- bottom bar -->
+    <div style="background:rgba(201,147,58,0.08);border:1px solid rgba(201,147,58,0.2);
+                border-radius:12px;padding:14px 20px;margin-top:20px;
+                display:flex;align-items:center;gap:16px;flex-wrap:wrap;direction:rtl">
+      <span style="font-size:20px">🤝</span>
+      <div>
+        <div style="font-size:12px;font-weight:900;color:var(--gold)">קבוצת ביצוע מקצועית</div>
+        <div style="font-size:11px;color:#999;margin-top:3px">
+          תכנון + פיקוח + יישום מיקרוטופינג · מוסמכי Topcret® · ניסיון עשרות פרויקטים
+        </div>
+      </div>
+      <div style="margin-right:auto;display:flex;gap:10px;flex-wrap:wrap">
+        <span style="background:rgba(13,92,99,0.3);border:1px solid var(--teal);
+                     color:var(--teal);padding:5px 14px;border-radius:20px;font-size:10px;font-weight:700">
+          ✅ מיישמים מוסמכים
+        </span>
+        <span style="background:rgba(45,158,107,0.2);border:1px solid var(--green);
+                     color:var(--green);padding:5px 14px;border-radius:20px;font-size:10px;font-weight:700">
+          ✅ אחריות Topcret®
+        </span>
+        <span style="background:rgba(201,147,58,0.15);border:1px solid var(--gold);
+                     color:var(--gold);padding:5px 14px;border-radius:20px;font-size:10px;font-weight:700">
+          ✅ פיקוח יומי
+        </span>
+      </div>
+    </div>
+  </div>`;
+}
+
 /* ── RENDER ALL ── */
 function renderAll(){
   const main = document.getElementById('main');
@@ -666,32 +1387,71 @@ function renderAll(){
   let html = '';
 
   allSlides.forEach((sl,i)=>{
-    if     (sl.layout==='cover')   html += renderCover(sl);
-    else if(sl.layout==='contact') html += renderContact(sl);
+    if     (sl.layout==='cover')      html += renderCover(sl);
+    else if(sl.layout==='contact')    html += renderContact(sl);
     else if(sl.layout==='image_full') html += renderModule(sl);
     else if(sl.layout==='table' && sl.slide_key==='fire')  html += renderFireTable(sl);
     else if(sl.layout==='table' && sl.slide_key==='price') html += renderPriceTable(sl);
-    else if(sl.layout==='two-col') html += renderTwoCol(sl);
+    else if(sl.layout==='two-col')    html += renderTwoCol(sl);
     else if(sl.slide_key==='surfaces') html += renderSurfaces(sl);
     else html += renderGrid3(sl);
   });
 
+  // Tab 12 — static
+  html += renderWorkPlan();
+  // Tab 13 — static
+  html += renderTeam();
+  // Tab 14 — site photos placeholder
+  html += renderSitePhotos();
+  // Tab 15 — microtopping process + video
+  html += renderProcess();
+
+  // Build nav AFTER html is injected so DOM slide count is accurate
   main.innerHTML = html;
+  const totalNow = document.querySelectorAll('.slide').length;
+
+  // Supabase tabs use slide_order from DB; static tabs are fixed
+  const staticTabs = [
+    [totalNow-4, '12. נהלי עבודה'],
+    [totalNow-3, '13. קבוצת ביצוע'],
+    [totalNow-2, '14. תמונות מצב קיים'],
+    [totalNow-1, '15. תהליך יישום'],
+  ];
 
   nav.innerHTML = allSlides.map((sl,i)=>`
     <button class="nav-btn ${i===0?'active':''}" onclick="goTo(${i})">${sl.slide_order}. ${sl.title}</button>
+  `).join('') + staticTabs.map(([idx,label])=>`
+    <button class="nav-btn" onclick="goTo(${idx})">${label}</button>
   `).join('');
+
+  // Store total for swipe/keyboard
+  window._totalSlides = totalNow;
 }
 
 function goTo(i){
   document.querySelectorAll('.slide').forEach((s,j)=>s.classList.toggle('active',j===i));
-  document.querySelectorAll('.nav-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
-  current=i; window.scrollTo(0,0);
+  document.querySelectorAll('.nav-btn').forEach((b,j)=>{
+    b.classList.toggle('active',j===i);
+    // Scroll active nav button into view on mobile
+    if(j===i) b.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  });
+  current=i;
+  window.scrollTo(0,0);
+
+  // Lazy-load iframes only when their slide becomes active
+  const activeSlide = document.querySelectorAll('.slide')[i];
+  if(activeSlide){
+    activeSlide.querySelectorAll('iframe.lazy-iframe').forEach(fr=>{
+      if(fr.dataset.src && fr.src !== fr.dataset.src){
+        fr.src = fr.dataset.src;
+      }
+    });
+  }
 }
 
 document.addEventListener('keydown',e=>{
   if(e.key==='ArrowRight'||e.key==='ArrowUp')   goTo(Math.max(current-1,0));
-  if(e.key==='ArrowLeft' ||e.key==='ArrowDown') goTo(Math.min(current+1,allSlides.length-1));
+  if(e.key==='ArrowLeft' ||e.key==='ArrowDown') goTo(Math.min(current+1,(window._totalSlides||99)-1));
 });
 
 (async()=>{
@@ -704,6 +1464,32 @@ document.addEventListener('keydown',e=>{
     console.error(e);
   }
 })();
+
+/* ── SWIPE — top-zone only (avoids scroll conflict) ── */
+(function(){
+  let startX=0, startY=0, startInZone=false;
+  const ZONE_HEIGHT = 160; // px from top — above most scroll content
+  const MIN_SWIPE = 60;
+
+  document.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    // Only activate swipe if touch starts in top zone OR bottom nav zone
+    startInZone = (startY < ZONE_HEIGHT) || (startY > window.innerHeight - 100);
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    if(!startInZone) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if(Math.abs(dx) < MIN_SWIPE) return;
+    if(Math.abs(dy) > Math.abs(dx)) return;
+    const total = window._totalSlides || document.querySelectorAll('.slide').length;
+    if(dx < -MIN_SWIPE) goTo(Math.min(current+1, total-1));
+    if(dx >  MIN_SWIPE) goTo(Math.max(current-1, 0));
+  }, { passive: true });
+})();
+
 </script>
 </body>
 </html>
