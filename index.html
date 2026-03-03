@@ -831,6 +831,217 @@ function renderContact(sl){
   </div>`;
 }
 
+/* ── PODCAST — TAB 16 ── */
+function renderPodcast(){
+  const AUDIO_URL = 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/poscast.m4a';
+  const chapters = [
+    { time:'00:00', title:'פתיחה — האתגר בבית פלדמן נתניה', desc:'רקע הפרויקט, בניין ישן, תקנות שימור עירוניות, אילוצי יסודות' },
+    { time:'03:20', title:'הפתרון — מסגרת אלומיניום + דנסגלס®', desc:'מדוע מערכת קלת משקל? השוואה: 15 ק"ג vs 120 ק"ג/מ"ר' },
+    { time:'08:45', title:'באקסב-אקו® — מיקרוטופינג Topcret®', desc:'VOC=0, EPD, LEED, 40+ צבעים, עמידות UV לחוץ' },
+    { time:'14:10', title:'בטיחות אש — תעודת מכון התקנים', desc:'A1 לא דליק, PCS 0.09 MJ/kg, תעודה 9811903821' },
+    { time:'19:30', title:'הצוות — בני פרסקי + אבשי ספיר', desc:'הנדסאי בנין + נציג מוסמך Stonhard®, אינטל פאב 18 ו-28' },
+    { time:'25:00', title:'תהליך היישום — 6 שלבים', desc:'פריימר → בסיס → ייבוש → גימור → סיילר' },
+    { time:'30:15', title:'אחריות + מחיר — הצעה מפורטת', desc:'12 חודשי אחריות, ביטוח אופציונלי, לוח תשלומים' },
+    { time:'35:00', title:'סיכום — למה לבחור במערכת הזו?', desc:'חיסכון 85% משקל, 20+ אישורים, אפס VOC, פיקוח מלא' },
+  ];
+
+  return `
+  <div class="slide" id="slide-podcast" style="background:linear-gradient(160deg,#0a0f1e 0%,#0d1a15 50%,#0a0f1e 100%);padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:var(--gold)">🎙️ פודקאסט</div>
+      <h1 style="color:#fff">פודקאסט מפורט לחידוש חזיתות</h1>
+      <p style="color:var(--lgray)">בית פלדמן נתניה · דנסגלס® + באקסב-אקו® · האזנה מלאה</p>
+      <div class="header-line" style="background:var(--gold)"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+      <!-- LEFT: PLAYER -->
+      <div>
+        <!-- main player card -->
+        <div style="background:#1a2030;border-radius:20px;padding:28px;
+                    border:1px solid rgba(201,147,58,0.3);
+                    box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+          <!-- artwork -->
+          <div style="background:linear-gradient(135deg,#0d5c63,#1a3a2a);
+                      border-radius:16px;padding:32px;text-align:center;margin-bottom:24px;
+                      position:relative;overflow:hidden">
+            <div style="position:absolute;top:0;left:0;right:0;bottom:0;
+                        background:radial-gradient(circle at 30% 70%,rgba(201,147,58,0.15),transparent)"></div>
+            <div style="font-size:56px;margin-bottom:12px;position:relative">🎙️</div>
+            <div style="font-size:16px;font-weight:900;color:#fff;position:relative;margin-bottom:6px">
+              חידוש חזיתות — בית פלדמן נתניה
+            </div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.5);position:relative">
+              דנסגלס® + באקסב-אקו® | Topcret®
+            </div>
+          </div>
+
+          <!-- audio element -->
+          <audio id="podcast-player" style="display:none">
+            <source src="${AUDIO_URL}" type="audio/mp4">
+            <source src="${AUDIO_URL}" type="audio/x-m4a">
+            <source src="${AUDIO_URL}" type="audio/aac">
+          </audio>
+
+          <!-- custom controls -->
+          <div style="margin-bottom:16px">
+            <!-- progress bar -->
+            <div id="pod-progress-wrap"
+                 style="background:rgba(255,255,255,0.1);border-radius:4px;height:6px;
+                        cursor:pointer;margin-bottom:10px;position:relative"
+                 onclick="podSeek(event)">
+              <div id="pod-bar" style="background:linear-gradient(90deg,var(--teal),var(--gold));
+                                       height:100%;border-radius:4px;width:0%;transition:width 0.3s"></div>
+              <div id="pod-thumb" style="position:absolute;top:-5px;left:0%;width:16px;height:16px;
+                                         background:var(--gold);border-radius:50%;transform:translateX(-50%);
+                                         box-shadow:0 2px 8px rgba(0,0,0,0.4)"></div>
+            </div>
+            <!-- time -->
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#888;margin-bottom:16px">
+              <span id="pod-cur">0:00</span>
+              <span id="pod-dur">--:--</span>
+            </div>
+          </div>
+
+          <!-- play/pause + speed -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:20px">
+            <button onclick="podSkip(-15)"
+                    style="background:rgba(255,255,255,0.08);border:none;color:#fff;
+                           border-radius:50%;width:40px;height:40px;font-size:13px;cursor:pointer">
+              ↩15
+            </button>
+            <button id="pod-btn" onclick="podToggle()"
+                    style="background:var(--teal);border:none;color:#fff;border-radius:50%;
+                           width:64px;height:64px;font-size:28px;cursor:pointer;
+                           box-shadow:0 8px 24px rgba(13,92,99,0.4);transition:transform 0.1s">
+              ▶
+            </button>
+            <button onclick="podSkip(15)"
+                    style="background:rgba(255,255,255,0.08);border:none;color:#fff;
+                           border-radius:50%;width:40px;height:40px;font-size:13px;cursor:pointer">
+              15↪
+            </button>
+          </div>
+
+          <!-- speed + download -->
+          <div style="display:flex;align-items:center;justify-content:space-between;
+                      padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)">
+            <div style="display:flex;gap:6px;align-items:center">
+              <span style="font-size:10px;color:#666">מהירות:</span>
+              ${['0.75','1','1.25','1.5','2'].map(s=>`
+                <button onclick="podSpeed('${s}')"
+                        id="spd-${s.replace('.','_')}"
+                        style="background:${s==='1'?'var(--teal)':'rgba(255,255,255,0.08)'};
+                               border:none;color:${s==='1'?'#fff':'#aaa'};
+                               border-radius:12px;padding:4px 8px;font-size:10px;
+                               cursor:pointer;transition:all 0.2s">
+                  ${s}x
+                </button>`).join('')}
+            </div>
+            <a href="${AUDIO_URL}" download
+               style="background:rgba(201,147,58,0.15);border:1px solid rgba(201,147,58,0.3);
+                      color:var(--gold);border-radius:12px;padding:6px 14px;
+                      font-size:10px;font-weight:700;text-decoration:none">
+              ⬇️ הורד
+            </a>
+          </div>
+        </div>
+
+        <!-- stats row -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
+          ${[['🕐','משך','~37 דקות'],['📚','פרקים','8 נושאים'],['🎯','רמה','מקצועי']].map(([i,l,v])=>`
+            <div style="background:#1a2030;border-radius:10px;padding:12px;text-align:center;
+                        border:1px solid rgba(255,255,255,0.06)">
+              <div style="font-size:20px;margin-bottom:4px">${i}</div>
+              <div style="font-size:9px;color:#666;margin-bottom:2px">${l}</div>
+              <div style="font-size:11px;font-weight:700;color:#fff">${v}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- RIGHT: CHAPTERS -->
+      <div>
+        <div style="font-size:12px;font-weight:900;color:var(--gold);
+                    margin-bottom:14px;letter-spacing:1px">📋 תוכן עניינים — לחץ לדילוג</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${chapters.map((ch,i)=>`
+            <div onclick="podJump('${ch.time}')"
+                 style="background:#1a2030;border-radius:10px;padding:13px 16px;
+                        cursor:pointer;border-right:4px solid var(--teal);
+                        border:1px solid rgba(255,255,255,0.06);
+                        border-right:4px solid var(--teal);
+                        transition:background 0.2s;direction:rtl"
+                 onmouseover="this.style.background='rgba(13,92,99,0.2)'"
+                 onmouseout="this.style.background='#1a2030'">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+                <span style="background:var(--teal);color:#fff;border-radius:6px;
+                             padding:2px 8px;font-size:10px;font-weight:900;
+                             flex-shrink:0">${ch.time}</span>
+                <span style="font-size:11px;font-weight:700;color:#fff">${ch.title}</span>
+              </div>
+              <div style="font-size:10px;color:#888;padding-right:50px;line-height:1.6">${ch.desc}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+
+    </div>
+  </div>`;
+}
+
+/* ── PODCAST JS ── */
+function podToggle(){
+  const a = document.getElementById('podcast-player');
+  const btn = document.getElementById('pod-btn');
+  if(!a) return;
+  if(a.paused){ a.play(); btn.textContent='⏸'; btn.style.background='var(--gold)'; }
+  else { a.pause(); btn.textContent='▶'; btn.style.background='var(--teal)'; }
+}
+function podSkip(sec){
+  const a = document.getElementById('podcast-player');
+  if(a) a.currentTime = Math.max(0, a.currentTime + sec);
+}
+function podSpeed(s){
+  const a = document.getElementById('podcast-player');
+  if(a) a.playbackRate = parseFloat(s);
+  document.querySelectorAll('[id^="spd-"]').forEach(b=>{
+    b.style.background='rgba(255,255,255,0.08)'; b.style.color='#aaa';
+  });
+  const btn = document.getElementById('spd-'+s.replace('.','_'));
+  if(btn){ btn.style.background='var(--teal)'; btn.style.color='#fff'; }
+}
+function podJump(timeStr){
+  const a = document.getElementById('podcast-player');
+  if(!a) return;
+  const parts = timeStr.split(':');
+  const sec = parseInt(parts[0])*60 + parseInt(parts[1]);
+  a.currentTime = sec;
+  if(a.paused) podToggle();
+}
+function podSeek(e){
+  const a = document.getElementById('podcast-player');
+  if(!a || !a.duration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  a.currentTime = pct * a.duration;
+}
+(function podTick(){
+  setInterval(()=>{
+    const a = document.getElementById('podcast-player');
+    if(!a || !a.duration) return;
+    const pct = (a.currentTime / a.duration) * 100;
+    const bar = document.getElementById('pod-bar');
+    const thumb = document.getElementById('pod-thumb');
+    const cur = document.getElementById('pod-cur');
+    const dur = document.getElementById('pod-dur');
+    if(bar) bar.style.width = pct+'%';
+    if(thumb) thumb.style.left = pct+'%';
+    const fmt = t => `${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;
+    if(cur) cur.textContent = fmt(a.currentTime);
+    if(dur) dur.textContent = fmt(a.duration);
+  }, 500);
+})();
+
 /* ── WORK PLAN — TAB 12 ── */
 function renderWorkPlan(){
   const today = new Date();
@@ -1397,6 +1608,10 @@ function renderAll(){
     else html += renderGrid3(sl);
   });
 
+  // Tab 16 — podcast
+  html += renderPodcast();
+  // Tab 16 — podcast
+  html += renderPodcast();
   // Tab 12 — static
   html += renderWorkPlan();
   // Tab 13 — static
@@ -1412,6 +1627,7 @@ function renderAll(){
 
   // Supabase tabs use slide_order from DB; static tabs are fixed
   const staticTabs = [
+    [totalNow-5, '16. 🎙️ פודקאסט'],
     [totalNow-4, '12. נהלי עבודה'],
     [totalNow-3, '13. קבוצת ביצוע'],
     [totalNow-2, '14. תמונות מצב קיים'],
