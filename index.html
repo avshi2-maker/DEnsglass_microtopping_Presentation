@@ -354,7 +354,7 @@ function renderTwoCol(sl){
         <div style="margin-top:16px">
           <div style="font-size:11px;font-weight:900;color:var(--green);margin-bottom:8px;letter-spacing:1px">🎨 מגוון צבעים — לחץ להגדלה</div>
           <img src="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/classic%20color%20topcret.jpg"
-               style="width:100%;height:140px;object-fit:cover;object-position:top;border-radius:10px;
+               style="width:100%;height:200px;object-fit:cover;object-position:center;border-radius:10px;
                       cursor:zoom-in;box-shadow:0 4px 20px rgba(0,0,0,0.3)"
                onclick="openLB('https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/classic%20color%20topcret.jpg','מגוון הצבעים — Topcret® Colour Chart')"
                alt="צבעי Topcret" onerror="this.style.display='none'">
@@ -386,7 +386,7 @@ function renderTwoCol(sl){
           ${[
             ['1','מחויבות בכתב','Topcret® מתחייבת בכתב לאיכות המוצר והיישום של Microcemento® ו-Baxab®.'],
             ['2','אחריות 12 חודש','ללא עלות. לא כוללת: השחתה, נזקים של אחרים, תחזוקה לקויה וכח עליון.'],
-            ['3','אחריות מורחבת 12 שנים','Topcret® מתחייבת לתקן או להחליף, ללא תשלום, כל חומר פגום לתקופה של 12 שנים. אחריות זו חלה גם על היישום.'],
+            ['3','אחריות מורחבת אפציונלית','Topcret® מתחייבת לתקן או להחליף, ללא תשלום, כל חומר פגום. אחריות זו חלה גם על היישום.'],
             ['4','פיקוח מלא','החברה מייצרת במתקניה, מיישמת עם צוות מיומן ביותר ומקפידה על סטנדרטים גבוהים — מעקב אחר התהליך כולו מתחילתו ועד סופו.'],
             ['5','שירות מלא','מהקשר הראשון ועד לשירות לאחר המכירה — Topcret® מציעה שירות מלא לפני, במהלך ואחרי ההתקנה.'],
             ['6','ביטוח שיפוץ בלעדי','Topcret® מציעה ביטוח שיפוץ בלעדי — הלקוח יכול לקבל הצעת מחיר מחברת ביטוח ישירות להארכת תקופת האחריות.']
@@ -499,46 +499,53 @@ function renderFireTable(sl){
 
 /* ── PRICE TABLE ── */
 function renderPriceTable(sl){
+  const PDF_OFFER = 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/price%20offre%20Feldman-House.pdf';
   return `
   <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
     <div class="slide-header">
       <div class="slide-label" style="color:${sl.accent_color}">הצעת מחיר</div>
-      <h1 style="color:#1a1a2e">${sl.title}</h1>
-      <p style="color:#555">לקוח: ${offerMeta.client_name||'_______________'} &nbsp;|&nbsp;
-         תאריך: ${offerMeta.offer_date||'_______________'} &nbsp;|&nbsp;
-         אסמכתא: ${offerMeta.offer_ref||'_______________'}</p>
+      <h1 style="color:#1a1a2e">שיפור חזיתות בית פלדמן נתניה — הצעת מחיר</h1>
       <div class="header-line" style="background:${sl.accent_color}"></div>
     </div>
-    <div class="price-wrap">
-      <table class="price-table">
-        <tr>
-          <th style="background:var(--teal);width:35%">תיאור העבודה</th>
-          <th style="background:var(--teal);width:8%">יחידה</th>
-          <th style="background:var(--teal);width:10%">כמות</th>
-          <th style="background:var(--teal);width:13%">מחיר יחידה (₪)</th>
-          <th style="background:var(--teal);width:13%">סה"כ (₪)</th>
-          <th style="background:var(--teal);width:21%">הערות</th>
-        </tr>
-        ${allPrice.map(r=>`<tr>
-          <td>${r.description}</td>
-          <td align="center">${r.unit}</td>
-          <td align="center" class="blank">${r.quantity||'______'}</td>
-          <td align="center" class="blank">${r.unit_price||'______'}</td>
-          <td align="center" class="blank">${r.total_price||'______'}</td>
-          <td style="font-size:10px;color:#777">${r.notes||''}</td>
-        </tr>`).join('')}
-        <tr class="total-row">
-          <td colspan="4" style="background:var(--teal)"><strong>סה"כ (ללא מע"מ ${offerMeta.vat_percent||18}%)</strong></td>
-          <td style="background:var(--teal);color:var(--gold2)" align="center">₪ _________</td>
-          <td style="background:var(--teal);color:#aaa;font-size:10px">מלא ב-Supabase</td>
-        </tr>
-      </table>
+
+    <!-- מטה-דאטה -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+      <div style="background:#fff;border-radius:10px;padding:12px 16px;border-right:4px solid var(--teal)">
+        <div style="font-size:9px;font-weight:900;color:var(--teal);letter-spacing:1px;margin-bottom:4px">לקוח</div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e">רס"ן מגנזי שניר</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:12px 16px;border-right:4px solid var(--gold)">
+        <div style="font-size:9px;font-weight:900;color:var(--gold);letter-spacing:1px;margin-bottom:4px">תאריך שליחה</div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e">2/3/2026</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:12px 16px;border-right:4px solid var(--green)">
+        <div style="font-size:9px;font-weight:900;color:var(--green);letter-spacing:1px;margin-bottom:4px">נשלח על ידי</div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e">בני פרסקי</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:12px 16px;border-right:4px solid var(--teal)">
+        <div style="font-size:9px;font-weight:900;color:var(--teal);letter-spacing:1px;margin-bottom:4px">ביצוע</div>
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e">קומפלט — שני שלבים</div>
+      </div>
     </div>
-    <div class="price-notes">
-      <div class="pnote" style="background:var(--teal)"><strong>תוקף</strong><span>${offerMeta.validity_days||30} ימים מתאריך ההנפקה</span></div>
-      <div class="pnote" style="background:var(--teal)"><strong>תנאי תשלום</strong><span>${offerMeta.payment_terms||'30/40/30%'}</span></div>
-      <div class="pnote" style="background:var(--teal)"><strong>אחריות</strong><span>${offerMeta.warranty||'אחריות Topcret ל-3 שנים'}</span></div>
-      <div class="pnote" style="background:var(--teal)"><strong>לא כלול</strong><span>${offerMeta.exclusions||'דנסגלס, מסגרת, מע"מ'}</span></div>
+
+    <!-- PDF viewer -->
+    <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.1)">
+      <div style="background:var(--teal);padding:12px 20px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;font-weight:700;color:#fff">📄 הצעת מחיר — בית פלדמן נתניה</span>
+        <a href="${PDF_OFFER}" target="_blank"
+           style="background:var(--gold);color:var(--dark);padding:7px 18px;border-radius:20px;
+                  font-size:11px;font-weight:900;text-decoration:none">
+          ⬇️ הורד PDF
+        </a>
+      </div>
+      <iframe src="${PDF_OFFER}"
+              style="width:100%;height:68vh;border:none;display:block"
+              title="הצעת מחיר בית פלדמן">
+      </iframe>
+    </div>
+
+    <div style="text-align:center;margin-top:12px;font-size:10px;color:#999">
+      אם ה-PDF לא נטען — <a href="${PDF_OFFER}" target="_blank" style="color:var(--teal);font-weight:700">לחץ כאן לפתיחה בחלון חדש</a>
     </div>
   </div>`;
 }
