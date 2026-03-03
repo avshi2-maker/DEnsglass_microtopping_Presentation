@@ -325,12 +325,15 @@ function renderTwoCol(sl){
   const isGreen = sl.accent_color==='#2d9e6b';
   const statData = isGreen ? [['2-3מ"מ','עובי'],['0 VOC','תכולה'],['×3','חזק יותר'],['40+','צבעים']] : [];
   const colBg = isLight?'background:var(--teal)':'background:#1c2438';
+  const displaySubtitle = isGreen
+    ? 'ציפוי ייחודי עם מקשה אפוקסי על בסיס מים ללא חומרים נדיפים — Topcret®'
+    : (sl.subtitle||'');
   return `
   <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
     <div class="slide-header">
       <div class="slide-label" style="color:${sl.accent_color}">דף מוצר</div>
       <h1 style="${tc}">${sl.title}</h1>
-      <p style="${sc}">${sl.subtitle||''}</p>
+      <p style="${sc}">${displaySubtitle}</p>
       <div class="header-line" style="background:${sl.accent_color}"></div>
     </div>
     <div class="two-col">
@@ -351,16 +354,16 @@ function renderTwoCol(sl){
         <div style="margin-top:16px">
           <div style="font-size:11px;font-weight:900;color:var(--green);margin-bottom:8px;letter-spacing:1px">🎨 מגוון צבעים — לחץ להגדלה</div>
           <img src="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/classic%20color%20topcret.jpg"
-               style="width:100%;border-radius:10px;cursor:zoom-in;box-shadow:0 4px 20px rgba(0,0,0,0.3)"
+               style="width:100%;height:140px;object-fit:cover;object-position:top;border-radius:10px;
+                      cursor:zoom-in;box-shadow:0 4px 20px rgba(0,0,0,0.3)"
                onclick="openLB('https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/classic%20color%20topcret.jpg','מגוון הצבעים — Topcret® Colour Chart')"
                alt="צבעי Topcret" onerror="this.style.display='none'">
           <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
-            <a href="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/classic%20color%20topcret.jpg"
-               target="_blank"
+            <button onclick="openLB('https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/classic%20color%20topcret.jpg','מגוון הצבעים — Topcret® Colour Chart')"
                style="flex:1;background:var(--green);color:#fff;padding:9px 14px;border-radius:8px;
-                      font-size:11px;font-weight:700;text-decoration:none;text-align:center">
+                      font-size:11px;font-weight:700;border:none;cursor:pointer">
               🔍 הגדל תמונה
-            </a>
+            </button>
             <a href="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/COLOR_CHART_EN_NEW.pdf"
                target="_blank"
                style="flex:1;background:rgba(45,158,107,0.2);border:1px solid var(--green);
@@ -372,6 +375,31 @@ function renderTwoCol(sl){
           <div style="font-size:10px;color:var(--mgray);margin-top:6px;text-align:center">
             40+ צבעים בסיסיים + Paint To Sample מותאם אישית · Topcret®
           </div>
+        </div>
+
+        <!-- אחריות וביטוח -->
+        <div style="margin-top:20px;background:rgba(201,147,58,0.08);border:1px solid rgba(201,147,58,0.3);
+                    border-radius:12px;padding:18px;direction:rtl">
+          <div style="font-size:13px;font-weight:900;color:var(--gold);margin-bottom:14px">
+            🛡️ אחריות וביטוח — Topcret®
+          </div>
+          ${[
+            ['1','מחויבות בכתב','Topcret® מתחייבת בכתב לאיכות המוצר והיישום של Microcemento® ו-Baxab®.'],
+            ['2','אחריות 12 חודש','ללא עלות. לא כוללת: השחתה, נזקים של אחרים, תחזוקה לקויה וכח עליון.'],
+            ['3','אחריות מורחבת 12 שנים','Topcret® מתחייבת לתקן או להחליף, ללא תשלום, כל חומר פגום לתקופה של 12 שנים. אחריות זו חלה גם על היישום.'],
+            ['4','פיקוח מלא','החברה מייצרת במתקניה, מיישמת עם צוות מיומן ביותר ומקפידה על סטנדרטים גבוהים — מעקב אחר התהליך כולו מתחילתו ועד סופו.'],
+            ['5','שירות מלא','מהקשר הראשון ועד לשירות לאחר המכירה — Topcret® מציעה שירות מלא לפני, במהלך ואחרי ההתקנה.'],
+            ['6','ביטוח שיפוץ בלעדי','Topcret® מציעה ביטוח שיפוץ בלעדי — הלקוח יכול לקבל הצעת מחיר מחברת ביטוח ישירות להארכת תקופת האחריות.']
+          ].map(([n,t,b])=>`
+            <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(201,147,58,0.12);align-items:flex-start">
+              <span style="background:var(--gold);color:var(--dark);border-radius:50%;width:22px;height:22px;
+                           font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;
+                           flex-shrink:0;margin-top:2px">${n}</span>
+              <div>
+                <div style="font-size:10px;font-weight:900;color:var(--gold);margin-bottom:3px">${t}</div>
+                <div style="font-size:10px;color:var(--lgray);line-height:1.7">${b}</div>
+              </div>
+            </div>`).join('')}
         </div>
 
         <!-- קיימות Topcret -->
@@ -415,7 +443,7 @@ function renderTwoCol(sl){
             <div class="stat-n" style="color:${sl.accent_color}">${n}</div>
             <div class="stat-l">${l}</div>
           </div>`).join('')}</div>`:''}
-        ${specs.map(s=>`
+        ${specs.filter(s=> !(isGreen && s.spec_name==='אחריות') && s.spec_name!=='year written warranty-3').map(s=>`
           <div class="spec-row ${s.highlight?'spec-highlight':''}">
             <span class="spec-key">${s.spec_name}</span>
             <span class="spec-val">${s.spec_value}</span>
