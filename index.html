@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>דנסגלס® + באקסב-אקו® — מערכת חידוש חזיתות</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#1a1a2e;--teal:#0d5c63;--teal2:#0a4550;
+  --gold:#c9933a;--gold2:#e8b84c;
+  --cream:#fdf6e3;--lgray:#f0ebe0;
+  --green:#2d9e6b;--red:#dc2626;
+  --white:#ffffff;--mgray:#8b8b8b;
+}
+body{font-family:'Heebo',sans-serif;background:#111;color:#fff;overflow-x:hidden;direction:rtl}
+
+/* NAV */
+nav{position:fixed;top:0;right:0;left:0;z-index:999;background:rgba(10,10,20,0.96);
+    backdrop-filter:blur(10px);border-bottom:1px solid rgba(201,147,58,0.3);
+    padding:8px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav-title{font-size:13px;font-weight:900;color:var(--gold);margin-left:16px;white-space:nowrap}
+#nav-buttons{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.nav-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+         color:#ccc;padding:5px 11px;border-radius:20px;cursor:pointer;font-size:11px;
+         font-family:'Heebo',sans-serif;transition:all 0.2s;white-space:nowrap}
+.nav-btn:hover,.nav-btn.active{background:var(--gold);color:var(--dark);border-color:var(--gold);font-weight:700}
+.nav-left{margin-right:auto;display:flex;gap:8px}
+.print-btn{background:var(--teal);border:none;color:#fff;padding:6px 16px;
+           border-radius:20px;cursor:pointer;font-size:11px;font-family:'Heebo',sans-serif;font-weight:700}
+
+/* LOADING */
+#loading{position:fixed;inset:0;background:var(--dark);display:flex;flex-direction:column;
+         align-items:center;justify-content:center;z-index:9999}
+.spinner{width:48px;height:48px;border:4px solid rgba(201,147,58,0.2);
+         border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{color:var(--gold);font-size:14px;letter-spacing:2px}
+
+/* MAIN */
+main{padding-top:56px}
+
+/* SLIDE BASE */
+.slide{width:100%;min-height:100vh;padding:60px 48px 48px;display:none;animation:fadeIn 0.35s ease}
+.slide.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* HEADERS */
+.slide-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;opacity:0.75}
+.slide-header{margin-bottom:28px}
+.slide-header h1{font-size:38px;font-weight:900;line-height:1.15;margin-bottom:10px}
+.slide-header p{font-size:14px;opacity:0.7;line-height:1.6}
+.header-line{height:3px;width:70px;margin-top:14px;border-radius:2px}
+
+/* HERO IMAGE */
+.hero-img{width:100%;height:300px;object-fit:cover;border-radius:14px;
+          margin-bottom:28px;box-shadow:0 16px 48px rgba(0,0,0,0.4)}
+
+/* GRID */
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:20px}
+
+/* CARDS */
+.card-head{padding:13px 16px;border-radius:10px 10px 0 0;display:flex;align-items:center;gap:10px;direction:rtl}
+.card-head span{font-size:20px}
+.card-head h3{font-size:13px;font-weight:900;color:#fff}
+.card-body{background:#fff;padding:14px 16px;border-radius:0 0 10px 10px;
+           font-size:12px;color:#333;line-height:1.9;direction:rtl}
+
+/* TWO COL — RTL */
+.two-col{display:grid;grid-template-columns:1fr 320px;gap:28px;align-items:start}
+.col-left{}
+.col-right{border-radius:14px;padding:28px;position:sticky;top:68px}
+.spec-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.08);align-items:flex-start;direction:rtl}
+.spec-key{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1px;
+          color:var(--gold);width:110px;flex-shrink:0;padding-top:3px;text-align:right}
+.spec-val{font-size:11px;line-height:1.6;flex:1}
+.spec-highlight .spec-val{color:var(--gold2);font-weight:700}
+.product-img{width:100%;height:190px;object-fit:cover;border-radius:10px;margin-bottom:18px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:20px 0}
+.stat-box{border-radius:10px;padding:14px;text-align:center}
+.stat-n{font-size:24px;font-weight:900}
+.stat-l{font-size:9px;margin-top:5px;opacity:0.7;line-height:1.4}
+
+/* TABLES */
+.data-table{width:100%;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;direction:rtl}
+.data-table th{padding:9px 12px;text-align:right;font-size:10px;font-weight:700}
+.data-table td{padding:8px 12px;border-bottom:1px solid rgba(0,0,0,0.06);text-align:right}
+.data-table tr:nth-child(even) td{background:rgba(0,0,0,0.03)}
+.highlight-row td{font-weight:900}
+.pass{font-weight:700;color:var(--green)}
+.two-tables{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.table-title{font-size:13px;font-weight:900;margin-bottom:10px}
+
+/* CERT GRID */
+.cert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:14px}
+.cert-item{border-radius:8px;padding:11px 13px;direction:rtl}
+.cert-item strong{font-size:11px;display:block;margin-bottom:3px}
+.cert-item span{font-size:10px;opacity:0.7}
+
+/* PRICE */
+.price-wrap{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.08)}
+.price-table{width:100%;border-collapse:collapse;font-size:12px;direction:rtl}
+.price-table th{padding:10px 12px;text-align:right;font-size:10px;font-weight:700;color:#fff}
+.price-table td{padding:9px 12px;border-bottom:1px solid rgba(0,0,0,0.06);color:#222;text-align:right}
+.price-table tr:nth-child(even) td{background:rgba(13,92,99,0.03)}
+.total-row td{font-weight:900;font-size:13px;color:#fff}
+.blank{color:#aaa;font-style:italic}
+.price-notes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.pnote{border-radius:10px;padding:12px 14px}
+.pnote strong{font-size:9px;display:block;letter-spacing:1px;margin-bottom:5px;color:var(--gold)}
+.pnote span{font-size:11px;line-height:1.6}
+
+/* COVER */
+.cover-wrap{display:grid;grid-template-columns:1fr 380px;gap:36px;align-items:center;min-height:85vh}
+.cover-title{font-size:52px;font-weight:900;line-height:1.05;margin-bottom:14px}
+.cover-title span{color:var(--gold)}
+.cover-sub{font-size:18px;letter-spacing:2px;color:var(--gold);margin-bottom:20px}
+.cover-line{width:70px;height:3px;background:var(--gold);margin-bottom:20px}
+.tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.tag{background:rgba(201,147,58,0.15);border:1px solid rgba(201,147,58,0.3);
+     color:var(--gold);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.sys-box{border:1px solid rgba(201,147,58,0.3);border-radius:12px;padding:22px}
+.sys-layer{background:rgba(255,255,255,0.07);border-radius:8px;padding:11px 14px;
+           margin-bottom:7px;font-size:13px;font-weight:700;text-align:center}
+.sys-plus{color:var(--gold);text-align:center;font-size:18px;margin:3px 0}
+.sys-result{background:var(--gold);color:var(--dark);border-radius:8px;
+            padding:11px 14px;font-size:12px;font-weight:900;margin-top:7px;text-align:center}
+
+/* MODULE SLIDE */
+.module-wrap{display:flex;flex-direction:column;align-items:center;padding:20px 0}
+.module-img{max-width:100%;max-height:72vh;border-radius:16px;
+            box-shadow:0 20px 60px rgba(0,0,0,0.5);object-fit:contain}
+.module-caption{margin-top:20px;text-align:center;font-size:13px;color:var(--lgray);line-height:1.8}
+
+/* CONTACT */
+.contact-wrap{display:flex;flex-direction:column;align-items:center;
+              justify-content:center;min-height:85vh;text-align:center}
+.contact-box{border:1px solid rgba(201,147,58,0.3);border-radius:14px;
+             padding:28px 50px;margin-top:28px;display:inline-block}
+
+/* WEIGHT BAR */
+.weight-bar{border:1px solid rgba(201,147,58,0.3);background:rgba(201,147,58,0.08);
+            border-radius:8px;padding:11px 18px;text-align:center;
+            font-size:12px;font-weight:700;color:var(--gold);margin-top:18px}
+
+/* EPD */
+.epd-bar{background:rgba(13,92,99,0.15);border:1px solid rgba(13,92,99,0.3);
+         border-radius:8px;padding:11px 18px;margin-top:16px;
+         display:flex;align-items:center;gap:10px;font-size:12px;direction:rtl}
+.epd-bar a{color:var(--gold);font-weight:700;text-decoration:none}
+.epd-bar a:hover{text-decoration:underline}
+
+/* SURFACE */
+.surface-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-top:20px}
+.surface-num{display:inline-block;width:26px;height:26px;border-radius:50%;
+             font-size:12px;font-weight:900;text-align:center;line-height:26px;margin-bottom:8px}
+
+@media(max-width:768px){
+  .cover-wrap,.two-col,.two-tables,.price-notes{grid-template-columns:1fr}
+  .slide{padding:60px 18px 28px}
+  .cover-title{font-size:34px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  nav{padding:6px 12px}
+  .nav-title{font-size:11px}
+}
+@media print{
+  nav{display:none}
+  .slide{display:block!important;page-break-after:always;min-height:100vh;padding:36px}
+  main{padding-top:0}
+}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p>טוען מצגת...</p>
+</div>
+
+<nav>
+  <span class="nav-title">דנסגלס® + באקסב-אקו®</span>
+  <div id="nav-buttons"></div>
+  <div class="nav-left">
+    <button class="print-btn" onclick="window.print()">🖨 הדפס / PDF</button>
+  </div>
+</nav>
+
+<main id="main"></main>
+
+<script>
+const SUPA_URL = 'https://vqelnbvvbowchtvedntw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxZWxuYnZ2Ym93Y2h0dmVkbnR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0NzA5OTQsImV4cCI6MjA4ODA0Njk5NH0.SEoGh9L470qSxIUqmI-Uo-oyAGJol6RdrDpSGBp79DI';
+const EPD_URL  = 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/EPD-Densglass.pdf';
+const MOD_URL  = 'https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/module-sketch.jpeg';
+
+const { createClient } = supabase;
+const db = createClient(SUPA_URL, SUPA_KEY);
+
+let allSlides=[], allContent=[], allSpecs=[], allCerts=[], allPrice=[], offerMeta={};
+let current = 0;
+
+async function loadAll(){
+  const [s,c,sp,ce,pr,om] = await Promise.all([
+    db.from('presentation_slides').select('*').eq('is_active',true).order('slide_order'),
+    db.from('slide_content').select('*').eq('is_active',true).order('block_order'),
+    db.from('product_specs').select('*').order('spec_order'),
+    db.from('certifications').select('*').order('cert_order'),
+    db.from('price_offer').select('*').eq('is_active',true).order('item_order'),
+    db.from('offer_meta').select('*').limit(1)
+  ]);
+  allSlides  = s.data  || [];
+  allContent = c.data  || [];
+  allSpecs   = sp.data || [];
+  allCerts   = ce.data || [];
+  allPrice   = pr.data || [];
+  offerMeta  = om.data?.[0] || {};
+}
+
+const gc = key => allContent.filter(x=>x.slide_key===key);
+const gs = key => allSpecs.filter(x=>x.product_key===key);
+const gce= key => allCerts.filter(x=>x.product_key===key);
+const idx= sl  => allSlides.indexOf(sl);
+
+/* ── COVER ── */
+function renderCover(sl){
+  const bullets = gc('cover').filter(x=>x.block_type==='bullet');
+  return `
+  <div class="slide active" id="slide-0" style="background:${sl.bg_color};min-height:100vh;padding:68px 48px 48px">
+    <div class="cover-wrap">
+      <div>
+        <div style="font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:12px">מערכת חידוש חזיתות · 2026</div>
+        <div class="cover-title">דנסגלס®<br><span>+ באקסב-אקו®</span></div>
+        <div class="cover-sub">חידוש חזיתות קלת משקל</div>
+        <div class="cover-line"></div>
+        <p style="font-size:13px;color:#b0a890;line-height:1.9;max-width:500px">${sl.subtitle}</p>
+        <div class="tag-row">
+          ${bullets.map(b=>`<span class="tag">${b.icon} ${b.heading}</span>`).join('')}
+        </div>
+        ${sl.image_url?`<img src="${sl.image_url}" class="hero-img" style="margin-top:24px;height:200px" onerror="this.style.display='none'">` :''}
+        <p style="font-size:10px;color:#555;margin-top:20px">${offerMeta.prepared_by||'אבשי ספיר'}</p>
+      </div>
+      <div style="background:var(--teal);border-radius:16px;padding:28px;text-align:center">
+        <div style="font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:18px">המערכת</div>
+        <div class="sys-box">
+          <div class="sys-layer">🔩 מסגרת אלומיניום</div>
+          <div class="sys-plus">+</div>
+          <div class="sys-layer">🟨 לוח דנסגלס®</div>
+          <div class="sys-plus">+</div>
+          <div class="sys-layer">🪵 באקסב-אקו® מיקרוטופינג</div>
+          <div class="sys-result">= חזית יפה · עמידה<br>עומדת בתקנות</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── GRID3 ── */
+function renderGrid3(sl){
+  const items = gc(sl.slide_key);
+  const isLight = sl.bg_color==='#fdf6e3';
+  const tc = isLight?'color:#1a1a2e':'color:#fff';
+  const sc = isLight?'color:#555':'color:var(--lgray)';
+  return `
+  <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:${sl.accent_color}">${sl.slide_key.toUpperCase()}</div>
+      <h1 style="${tc}">${sl.title}</h1>
+      <p style="${sc}">${sl.subtitle||''}</p>
+      <div class="header-line" style="background:${sl.accent_color}"></div>
+    </div>
+    ${sl.image_url?`<img src="${sl.image_url}" class="hero-img" onerror="this.style.display='none'">` :''}
+    <div class="grid3">
+      ${items.map(item=>`
+        <div style="border-radius:12px;overflow:hidden;${isLight?'box-shadow:0 2px 12px rgba(0,0,0,0.07)':'border:1px solid rgba(255,255,255,0.07)'}">
+          <div class="card-head" style="background:${sl.accent_color}">
+            <span>${item.icon||''}</span>
+            <h3>${item.heading||''}</h3>
+          </div>
+          <div class="card-body">${item.body_text||''}</div>
+        </div>`).join('')}
+    </div>
+    ${sl.slide_key==='system'?`<div class="weight-bar">⚡ משקל כולל של המערכת ≈ 12-15 ק"ג/מ"ר &nbsp;·&nbsp; חזית בטון מסורתית: 80-120 ק"ג/מ"ר &nbsp;·&nbsp; חיסכון במשקל: ~85%</div>`:''}
+    ${sl.slide_key==='challenge'?`<div style="background:${sl.accent_color};border-radius:10px;padding:11px 18px;margin-top:18px;font-size:12px;font-weight:700;color:#fff">✅ הפתרון שלנו: מסגרת אלומיניום + לוח דנסגלס® עמיד אש + מיקרוטופינג באקסב-אקו® ללא VOC — קל, בטוח, יפה, עומד בתקנות.</div>`:''}
+  </div>`;
+}
+
+/* ── TWO COL ── */
+function renderTwoCol(sl){
+  const isLight = sl.bg_color==='#fdf6e3';
+  const tc = isLight?'color:#1a1a2e':'color:#fff';
+  const sc = isLight?'color:#555':'color:var(--lgray)';
+  const specs = gs(sl.slide_key);
+  const feats = gc(sl.slide_key);
+  const isGreen = sl.accent_color==='#2d9e6b';
+  const statData = isGreen ? [['2-3מ"מ','עובי'],['0 VOC','תכולה'],['×3','חזק יותר'],['40+','צבעים']] : [];
+  const colBg = isLight?'background:var(--teal)':'background:#1c2438';
+  return `
+  <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:${sl.accent_color}">דף מוצר</div>
+      <h1 style="${tc}">${sl.title}</h1>
+      <p style="${sc}">${sl.subtitle||''}</p>
+      <div class="header-line" style="background:${sl.accent_color}"></div>
+    </div>
+    <div class="two-col">
+      <div class="col-left">
+        ${feats.map(f=>`
+          <div style="display:flex;gap:12px;background:${isLight?'#fff':'rgba(255,255,255,0.04)'};
+               border-radius:10px;padding:13px;margin-bottom:10px;
+               border:1px solid rgba(0,0,0,0.06);direction:rtl">
+            <span style="font-size:22px;flex-shrink:0;width:28px;text-align:center">${f.icon||''}</span>
+            <div>
+              <div style="font-size:12px;font-weight:900;color:${sl.accent_color};margin-bottom:4px">${f.heading||''}</div>
+              <div style="font-size:11px;${isLight?'color:#444':'color:var(--lgray)'};line-height:1.8">${f.body_text||''}</div>
+            </div>
+          </div>`).join('')}
+        <div class="epd-bar">📄 <a href="${EPD_URL}" target="_blank">${isGreen?'הורד את ה-EPD של דנסגלס® (PDF)':'צפה בדף נתוני EPD — דנסגלס® (PDF)'}</a></div>
+      </div>
+      <div class="col-right" style="${colBg}">
+        ${sl.image_url?`<img src="${sl.image_url}" class="product-img" onerror="this.style.display='none'">` :''}
+        ${statData.length?`<div class="stats-row">${statData.map(([n,l])=>`
+          <div class="stat-box" style="background:rgba(255,255,255,0.08)">
+            <div class="stat-n" style="color:${sl.accent_color}">${n}</div>
+            <div class="stat-l">${l}</div>
+          </div>`).join('')}</div>`:''}
+        ${specs.map(s=>`
+          <div class="spec-row ${s.highlight?'spec-highlight':''}">
+            <span class="spec-key">${s.spec_name}</span>
+            <span class="spec-val">${s.spec_value}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── FIRE TABLE ── */
+function renderFireTable(sl){
+  const dgC = gce('densglass');
+  const bxC = gce('baxab');
+  return `
+  <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:${sl.accent_color}">ציות רגולטורי</div>
+      <h1 style="color:#1a1a2e">${sl.title}</h1>
+      <p style="color:#555">${sl.subtitle||''}</p>
+      <div class="header-line" style="background:${sl.accent_color}"></div>
+    </div>
+    <div class="two-tables">
+      <div>
+        <div class="table-title" style="color:var(--teal)">דנסגלס® — אישורי אש ובטיחות</div>
+        <div class="price-wrap">
+          <table class="data-table">
+            <tr><th style="background:var(--teal);color:#fff">תעודה</th>
+                <th style="background:var(--teal);color:#fff">תוצאה</th>
+                <th style="background:var(--teal);color:#fff">תקן / אסמכתא</th></tr>
+            ${dgC.map(c=>`<tr class="${c.highlight?'highlight-row':''}">
+              <td>${c.cert_name}</td><td class="pass">${c.result}</td>
+              <td style="font-size:10px;color:#777">${c.version||''}</td></tr>`).join('')}
+          </table>
+        </div>
+        <div class="epd-bar" style="margin-top:10px">📄 <a href="${EPD_URL}" target="_blank">דף נתוני EPD — דנסגלס® (PDF)</a></div>
+      </div>
+      <div>
+        <div class="table-title" style="color:var(--green)">באקסב-אקו® — ציות VOC וסביבה</div>
+        <div class="price-wrap">
+          <table class="data-table">
+            <tr><th style="background:var(--green);color:#fff">תקנה / פרוטוקול</th>
+                <th style="background:var(--green);color:#fff">תוצאה</th>
+                <th style="background:var(--green);color:#fff">גרסה</th></tr>
+            ${bxC.map(c=>`<tr class="${c.highlight?'highlight-row':''}">
+              <td>${c.cert_name}</td><td class="pass">✓ ${c.result}</td>
+              <td style="font-size:10px;color:#777">${c.version||''}</td></tr>`).join('')}
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── PRICE TABLE ── */
+function renderPriceTable(sl){
+  return `
+  <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:${sl.accent_color}">הצעת מחיר</div>
+      <h1 style="color:#1a1a2e">${sl.title}</h1>
+      <p style="color:#555">לקוח: ${offerMeta.client_name||'_______________'} &nbsp;|&nbsp;
+         תאריך: ${offerMeta.offer_date||'_______________'} &nbsp;|&nbsp;
+         אסמכתא: ${offerMeta.offer_ref||'_______________'}</p>
+      <div class="header-line" style="background:${sl.accent_color}"></div>
+    </div>
+    <div class="price-wrap">
+      <table class="price-table">
+        <tr>
+          <th style="background:var(--teal);width:35%">תיאור העבודה</th>
+          <th style="background:var(--teal);width:8%">יחידה</th>
+          <th style="background:var(--teal);width:10%">כמות</th>
+          <th style="background:var(--teal);width:13%">מחיר יחידה (₪)</th>
+          <th style="background:var(--teal);width:13%">סה"כ (₪)</th>
+          <th style="background:var(--teal);width:21%">הערות</th>
+        </tr>
+        ${allPrice.map(r=>`<tr>
+          <td>${r.description}</td>
+          <td align="center">${r.unit}</td>
+          <td align="center" class="blank">${r.quantity||'______'}</td>
+          <td align="center" class="blank">${r.unit_price||'______'}</td>
+          <td align="center" class="blank">${r.total_price||'______'}</td>
+          <td style="font-size:10px;color:#777">${r.notes||''}</td>
+        </tr>`).join('')}
+        <tr class="total-row">
+          <td colspan="4" style="background:var(--teal)"><strong>סה"כ (ללא מע"מ ${offerMeta.vat_percent||18}%)</strong></td>
+          <td style="background:var(--teal);color:var(--gold2)" align="center">₪ _________</td>
+          <td style="background:var(--teal);color:#aaa;font-size:10px">מלא ב-Supabase</td>
+        </tr>
+      </table>
+    </div>
+    <div class="price-notes">
+      <div class="pnote" style="background:var(--teal)"><strong>תוקף</strong><span>${offerMeta.validity_days||30} ימים מתאריך ההנפקה</span></div>
+      <div class="pnote" style="background:var(--teal)"><strong>תנאי תשלום</strong><span>${offerMeta.payment_terms||'30/40/30%'}</span></div>
+      <div class="pnote" style="background:var(--teal)"><strong>אחריות</strong><span>${offerMeta.warranty||'אחריות Topcret ל-3 שנים'}</span></div>
+      <div class="pnote" style="background:var(--teal)"><strong>לא כלול</strong><span>${offerMeta.exclusions||'דנסגלס, מסגרת, מע"מ'}</span></div>
+    </div>
+  </div>`;
+}
+
+/* ── MODULE SKETCH ── */
+function renderModule(sl){
+  return `
+  <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:${sl.accent_color}">סקיצה טכנית</div>
+      <h1 style="color:#fff">${sl.title}</h1>
+      <p style="color:var(--lgray)">${sl.subtitle||''}</p>
+      <div class="header-line" style="background:${sl.accent_color}"></div>
+    </div>
+    <div class="module-wrap">
+      <img src="${MOD_URL}" class="module-img" alt="מודול הבנייה — חתך מערכת" onerror="this.src='';this.alt='תמונה לא נמצאה'">
+      <div class="module-caption">
+        <strong style="color:var(--gold);font-size:15px">${sl.title}</strong><br>
+        ${sl.subtitle||''}<br>
+        <span style="font-size:11px;color:var(--mgray)">דנסגלס® + באקסב-אקו® על מסגרת אלומיניום תלויה — חתך מערכת מלא</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── SURFACES ── */
+function renderSurfaces(sl){
+  const items = gc('surfaces');
+  return `
+  <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
+    <div class="slide-header">
+      <div class="slide-label" style="color:${sl.accent_color}">מדריך טכני</div>
+      <h1 style="color:#1a1a2e">${sl.title}</h1>
+      <p style="color:#555">${sl.subtitle||''}</p>
+      <div class="header-line" style="background:${sl.accent_color}"></div>
+    </div>
+    <div class="surface-grid">
+      ${items.map((item,i)=>`
+        <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:14px;direction:rtl">
+          <div class="surface-num" style="background:${sl.accent_color};color:#fff">${i+1}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:18px">${item.icon||''}</span>
+            <strong style="font-size:12px;color:var(--teal)">${item.heading||''}</strong>
+          </div>
+          <p style="font-size:11px;color:#444;line-height:1.8">${item.body_text||''}</p>
+        </div>`).join('')}
+    </div>
+    <div style="background:var(--teal);border-radius:10px;padding:11px 18px;margin-top:18px;font-size:12px;font-weight:700;color:#fff">
+      ✅ דנסגלס® הוא המשטח האידיאלי לציפוי באקסב-אקו® — מומלץ על ידי EIMA לכל אזורי האקלים.
+    </div>
+  </div>`;
+}
+
+/* ── CONTACT ── */
+function renderContact(sl){
+  return `
+  <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
+    <div class="contact-wrap">
+      <div style="font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:14px">צור קשר</div>
+      <h1 style="font-size:38px;font-weight:900;text-align:center;max-width:680px;line-height:1.2">${sl.title}</h1>
+      <p style="color:var(--gold);font-size:14px;letter-spacing:2px;margin-top:12px">${sl.subtitle}</p>
+      <div style="width:90px;height:3px;background:var(--gold);margin:24px auto"></div>
+      <div style="font-size:12px;color:#666;margin-bottom:24px">
+        דנסגלס® — ג׳ורג׳יה פסיפיק (golmat.co.il) &nbsp;·&nbsp; באקסב-אקו® — Topcret® (topcret.com)
+      </div>
+      <div class="contact-box">
+        <div style="font-size:18px;font-weight:900;color:var(--cream);margin-bottom:14px">
+          ${offerMeta.prepared_by||'אבשי ספיר — מומחה ריצוף וחזיתות'}
+        </div>
+        <div style="font-size:14px;line-height:2.4;color:var(--gold)">
+          📞 &nbsp; ${offerMeta.contact_phone||'___________________'}<br>
+          ✉ &nbsp; ${offerMeta.contact_email||'___________________'}
+        </div>
+      </div>
+      <div class="epd-bar" style="margin-top:28px;justify-content:center">
+        📄 <a href="${EPD_URL}" target="_blank">הורד דף נתוני EPD — דנסגלס®</a>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ── RENDER ALL ── */
+function renderAll(){
+  const main = document.getElementById('main');
+  const nav  = document.getElementById('nav-buttons');
+  let html = '';
+
+  allSlides.forEach((sl,i)=>{
+    if     (sl.layout==='cover')   html += renderCover(sl);
+    else if(sl.layout==='contact') html += renderContact(sl);
+    else if(sl.layout==='image_full') html += renderModule(sl);
+    else if(sl.layout==='table' && sl.slide_key==='fire')  html += renderFireTable(sl);
+    else if(sl.layout==='table' && sl.slide_key==='price') html += renderPriceTable(sl);
+    else if(sl.layout==='two-col') html += renderTwoCol(sl);
+    else if(sl.slide_key==='surfaces') html += renderSurfaces(sl);
+    else html += renderGrid3(sl);
+  });
+
+  main.innerHTML = html;
+
+  nav.innerHTML = allSlides.map((sl,i)=>`
+    <button class="nav-btn ${i===0?'active':''}" onclick="goTo(${i})">${sl.slide_order}. ${sl.title}</button>
+  `).join('');
+}
+
+function goTo(i){
+  document.querySelectorAll('.slide').forEach((s,j)=>s.classList.toggle('active',j===i));
+  document.querySelectorAll('.nav-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+  current=i; window.scrollTo(0,0);
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowUp')   goTo(Math.max(current-1,0));
+  if(e.key==='ArrowLeft' ||e.key==='ArrowDown') goTo(Math.min(current+1,allSlides.length-1));
+});
+
+(async()=>{
+  try{
+    await loadAll();
+    renderAll();
+    document.getElementById('loading').style.display='none';
+  }catch(e){
+    document.getElementById('loading').innerHTML=`<p style="color:red">שגיאה: ${e.message}</p>`;
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
