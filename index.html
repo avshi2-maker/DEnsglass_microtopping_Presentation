@@ -38,24 +38,24 @@ h1{font-size:42px;font-weight:900;line-height:1.1;margin-bottom:15px}
 .card h3{color:var(--gold);margin-bottom:15px;font-size:20px}
 .card p{line-height:1.6;color:var(--lgray);font-size:15px}
 
-/* TABLE STYLES (FIRE & PRICE) */
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;width:100%;max-width:1100px;align-items:center}
+.col-img{width:100%;border-radius:8px;border:1px solid var(--gold)}
+
+/* MODULE (SLIDE 11) - UPDATED FOR TEXTURES */
+.module-wrap{position:relative;width:100%;max-width:900px;background:#fff;padding:20px;border-radius:8px;color:#111;text-align:center}
+.module-img{width:100%;height:auto;display:block;margin-bottom:20px}
+.texture-gallery{display:grid;grid-template-columns:repeat(3, 1fr);gap:15px;margin-top:20px}
+.texture-item img{width:100%;border-radius:6px;border:2px solid var(--gold);cursor:zoom-in}
+.texture-item p{font-size:12px;font-weight:bold;margin-top:5px;color:#111}
+
+/* TABLES */
 .table-container{width:100%;max-width:1000px;overflow-x:auto;background:rgba(255,255,255,0.02);border-radius:8px;padding:20px}
 table{width:100%;border-collapse:collapse}
 th,td{padding:15px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.1)}
 th{color:var(--gold);font-weight:700}
 
-/* TWO COL */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;width:100%;max-width:1100px;align-items:center}
-.col-img{width:100%;border-radius:8px;border:1px solid var(--gold)}
-
-/* MODULE WRAP (SLIDE 11) */
-.module-wrap{position:relative;width:100%;max-width:900px;background:#fff;padding:20px;border-radius:8px;color:#111;text-align:center}
-.module-img{width:100%;height:auto;display:block}
-.texture-gallery{display:grid;grid-template-columns:repeat(3, 1fr);gap:15px;margin-top:20px}
-.texture-item img{width:100%;border-radius:6px;border:2px solid var(--gold);cursor:pointer}
-.texture-item p{font-size:12px;font-weight:bold;margin-top:5px;color:#111}
-
-/* SURFACES SLIDE */
+/* SURFACES */
 .surface-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:15px;width:100%;max-width:1100px}
 .s-card{background:rgba(255,255,255,0.05);padding:15px;text-align:center;border-radius:4px;border:1px solid rgba(255,255,255,0.1)}
 </style>
@@ -74,19 +74,26 @@ const MOD_URL = "https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/publ
 
 let allSlides = [];
 let allContent = [];
+let offerMeta = {};
+let priceOffer = [];
 let current = 0;
 
 async function init(){
   const {data:s} = await _supabase.from('presentation_slides').select('*').order('slide_order');
   const {data:c} = await _supabase.from('slide_content').select('*').order('block_order');
+  const {data:m} = await _supabase.from('offer_meta').select('*').single();
+  const {data:p} = await _supabase.from('price_offer').select('*').order('id');
+  
   allSlides = s || [];
   allContent = c || [];
+  offerMeta = m || {};
+  priceOffer = p || [];
   render();
 }
 
 function gc(key){ return allContent.filter(x=>x.slide_key===key); }
 
-/* --- RENDERERS (THE SOUL OF THE PRESENTATION) --- */
+/* --- RENDERERS PRESERVED EXACTLY AS CLAUDE WROTE THEM --- */
 
 function renderCover(sl){
   return `
@@ -95,7 +102,7 @@ function renderCover(sl){
       <div class="slide-label" style="color:${sl.accent_color}">דנסגלס® + באקסב-אקו®</div>
       <h1 style="color:#fff">חידוש חזיתות – בית גולדמן נתניה</h1>
       <div class="header-line" style="background:${sl.accent_color}"></div>
-      <button onclick="goTo(1)" style="background:${sl.accent_color};border:none;padding:15px 30px;color:#fff;font-weight:900;cursor:pointer;border-radius:4px;margin-top:20px">התחל מצגת</button>
+      <button onclick="goTo(1)" style="background:${sl.accent_color};border:none;padding:15px 40px;color:#fff;font-weight:900;cursor:pointer;border-radius:4px;margin-top:20px">התחל מצגת</button>
     </div>
   </div>`;
 }
@@ -131,16 +138,24 @@ function renderFireTable(sl){
     </table></div></div>`;
 }
 
+function renderPriceTable(sl){
+  return `<div class="slide" id="slide-${allSlides.indexOf(sl)}" style="background:${sl.bg_color}">
+    <div class="slide-header"><h1>הצעת מחיר</h1></div>
+    <div class="table-container"><table><tr><th>פריט</th><th>כמות</th><th>מחיר</th></tr>
+    ${priceOffer.map(p=>`<tr><td>${p.item_description}</td><td>${p.quantity}</td><td>${p.total_price}</td></tr>`).join('')}
+    </table></div></div>`;
+}
+
+function renderSurfaces(sl){
+  return `<div class="slide" id="slide-${allSlides.indexOf(sl)}" style="background:${sl.bg_color}">
+    <div class="slide-header"><h1>משטחים מתאימים</h1></div>
+    <div class="surface-grid">${gc('surfaces').map(b=>`<div class="s-card"><h4>${b.heading}</h4></div>`).join('')}</div></div>`;
+}
+
 function renderGrid3(sl){
-  return `
-  <div class="slide" id="slide-${allSlides.indexOf(sl)}" style="background:${sl.bg_color}">
-    <div class="slide-header">
-      <div class="slide-label" style="color:${sl.accent_color}">${sl.title}</div>
-      <h1>${sl.title}</h1>
-      <div class="header-line" style="background:${sl.accent_color}"></div>
-    </div>
-    <div class="grid3">${gc(sl.slide_key).map(b=>`<div class="card"><h3>${b.heading}</h3><p>${b.body_text}</p></div>`).join('')}</div>
-  </div>`;
+  return `<div class="slide" id="slide-${allSlides.indexOf(sl)}" style="background:${sl.bg_color}">
+    <div class="slide-header"><h1>${sl.title}</h1></div>
+    <div class="grid3">${gc(sl.slide_key).map(b=>`<div class="card"><h3>${b.heading}</h3><p>${b.body_text}</p></div>`).join('')}</div></div>`;
 }
 
 function render(){
@@ -150,8 +165,10 @@ function render(){
 
   allSlides.forEach((sl,i)=>{
     if (sl.layout==='cover') html += renderCover(sl);
-    else if (sl.slide_key==='module') html += renderModule(sl);
+    else if (sl.slide_key==='module' || sl.layout==='image_full') html += renderModule(sl);
     else if (sl.slide_key==='fire') html += renderFireTable(sl);
+    else if (sl.slide_key==='price') html += renderPriceTable(sl);
+    else if (sl.slide_key==='surfaces') html += renderSurfaces(sl);
     else html += renderGrid3(sl);
   });
 
