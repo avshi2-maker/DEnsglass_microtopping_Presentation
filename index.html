@@ -506,6 +506,8 @@ function renderTwoCol(sl){
       <div class="slide-label" style="color:${sl.accent_color}">דף מוצר</div>
       <h1 style="${tc}">${sl.title}</h1>
       <p style="${sc}">${displaySubtitle}</p>
+      ${!isGreen?`<p style="margin-top:4px;font-size:12px"><span style="color:#aaa">ספק: </span><a href="https://www.golmat.co.il/" target="_blank" style="color:var(--gold);font-weight:700;text-decoration:none">גולמט — golmat.co.il ↗</a></p>`:''}
+      ${isGreen?`<p style="margin-top:4px;font-size:12px"><span style="color:#aaa">יצרן: </span><a href="https://topcret.com/" target="_blank" style="color:var(--green);font-weight:700;text-decoration:none">Topcret® — topcret.com ↗</a></p>`:''}
       <div class="header-line" style="background:${sl.accent_color}"></div>
     </div>
     <div class="two-col">
@@ -651,6 +653,12 @@ function renderFireTable(sl){
           </table>
         </div>
         <div class="epd-bar" style="margin-top:10px">📄 <a href="${EPD_URL}" target="_blank">דף נתוני EPD — דנסגלס® (PDF)</a></div>
+        <div class="epd-bar" style="margin-top:8px;background:rgba(220,53,69,0.08);border:1px solid rgba(220,53,69,0.3)">
+          🔥 <a href="https://vqelnbvvbowchtvedntw.supabase.co/storage/v1/object/public/facade-images/Fire_Test.pdf"
+               target="_blank" style="color:#dc3545;font-weight:700">
+            תוצאות בדיקת תקן אש — מכון התקנים הישראלי (PDF) ↓
+          </a>
+        </div>
       </div>
       <div>
         <div class="table-title" style="color:var(--green)">באקסב-אקו® — ציות VOC וסביבה</div>
@@ -770,7 +778,7 @@ function renderModule(sl){
         </div>`).join('')}
     </div>
     <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--mgray)">
-      🎨 &nbsp; כל הגוונים — ציפוי באקסב-אקו® מיקרו-מלט · Topcret®
+      🎨 &nbsp; כל הגוונים — ציפוי באקסב-אקו® מיקרוטופינג · Topcret®
     </div>
   </div>`;
 }
@@ -778,11 +786,12 @@ function renderModule(sl){
 /* ── SURFACES ── */
 function renderSurfaces(sl){
   const items = gc('surfaces');
+  const title = (sl.title||'').replace(/מיקרו-מלט/g,'מיקרוטופינג');
   return `
   <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
     <div class="slide-header">
       <div class="slide-label" style="color:${sl.accent_color}">מדריך טכני</div>
-      <h1 style="color:#1a1a2e">${sl.title}</h1>
+      <h1 style="color:#1a1a2e">${title}</h1>
       <p style="color:#555">${sl.subtitle||''}</p>
       <div class="header-line" style="background:${sl.accent_color}"></div>
     </div>
@@ -1421,10 +1430,9 @@ function renderTeam(){
         <!-- body -->
         <div style="padding:22px 24px">
           ${[
-            ['🎓','הכשרה','הנדסאי בנין מוסמך · מנהל עבודה מוסמך'],
+            ['🎓','הכשרה','פרויקטור · קבלנות · פיקוח · כתבי כמויות · מדידות שטחים וגבהים · מסירות טופס 4 · ניתוח תוכניות · עריכת כתבי כמויות · פיתוח אלמנטים חדשניים ומקוריים · ניהול תקציבים'],
             ['📋','תפקיד בפרויקט','תכנון מערכת החזית · ניהול ביצוע · פיקוח על איכות'],
-            ['🏗️','התמחות','שיפוצי חזיתות · פרויקטים מורכבים · שימור מבנים היסטוריים'],
-            ['📍','ניסיון','20+ שנות ניסיון בניהול פרויקטי בנייה ושיפוץ'],
+            ['🏗️','ניסיון','30+ שנות ניסיון בעשרות מגה פרויקטים — אינטל · איסוזו · בנקים · מרלו"ג · אחסנה · בנייה פרטית, שכונות ווילות'],
             ['✅','אחריות','מסירה בזמן · עמידה בתקציב · פיקוח יומי בשטח'],
           ].map(([ico,label,val])=>`
             <div style="display:flex;gap:12px;padding:9px 0;
@@ -1598,6 +1606,7 @@ function renderAll(){
   let html = '';
 
   allSlides.forEach((sl,i)=>{
+    if(sl.slide_order===9) return; // Tab 9 removed
     if     (sl.layout==='cover')      html += renderCover(sl);
     else if(sl.layout==='contact')    html += renderContact(sl);
     else if(sl.layout==='image_full') html += renderModule(sl);
@@ -1608,17 +1617,15 @@ function renderAll(){
     else html += renderGrid3(sl);
   });
 
-  // Tab 16 — podcast
+  // Tab 11 — podcast
   html += renderPodcast();
-  // Tab 16 — podcast
-  html += renderPodcast();
-  // Tab 12 — static
+  // Tab 12 — static: work plan
   html += renderWorkPlan();
-  // Tab 13 — static
+  // Tab 13 — static: team CV
   html += renderTeam();
-  // Tab 14 — site photos placeholder
+  // Tab 14 — static: site photos
   html += renderSitePhotos();
-  // Tab 15 — microtopping process + video
+  // Tab 15 — static: microtopping process
   html += renderProcess();
 
   // Build nav AFTER html is injected so DOM slide count is accurate
@@ -1627,17 +1634,17 @@ function renderAll(){
 
   // Supabase tabs use slide_order from DB; static tabs are fixed
   const staticTabs = [
-    [totalNow-5, '16. 🎙️ פודקאסט'],
+    [totalNow-5, '11. 🎙️ פודקאסט'],
     [totalNow-4, '12. נהלי עבודה'],
     [totalNow-3, '13. קבוצת ביצוע'],
     [totalNow-2, '14. תמונות מצב קיים'],
     [totalNow-1, '15. תהליך יישום'],
   ];
 
-  nav.innerHTML = allSlides.map((sl,i)=>`
-    <button class="nav-btn ${i===0?'active':''}" onclick="goTo(${i})">${sl.slide_order}. ${sl.title}</button>
+  nav.innerHTML = allSlides.filter(sl=>sl.slide_order!==9).map((sl,i)=>`
+    <button class="nav-btn ${i===0?'active':''}" data-slide="${i}" onclick="goTo(${i})">${sl.slide_order}. ${(sl.title||'').replace(/מיקרו-מלט/g,'מיקרוטופינג')}</button>
   `).join('') + staticTabs.map(([idx,label])=>`
-    <button class="nav-btn" onclick="goTo(${idx})">${label}</button>
+    <button class="nav-btn" data-slide="${idx}" onclick="goTo(${idx})">${label}</button>
   `).join('');
 
   // Store total for swipe/keyboard
@@ -1646,10 +1653,11 @@ function renderAll(){
 
 function goTo(i){
   document.querySelectorAll('.slide').forEach((s,j)=>s.classList.toggle('active',j===i));
-  document.querySelectorAll('.nav-btn').forEach((b,j)=>{
-    b.classList.toggle('active',j===i);
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    const active = parseInt(b.dataset.slide)===i;
+    b.classList.toggle('active', active);
     // Scroll active nav button into view on mobile
-    if(j===i) b.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    if(active) b.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
   });
   current=i;
   window.scrollTo(0,0);
