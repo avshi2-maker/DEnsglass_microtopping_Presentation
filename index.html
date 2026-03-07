@@ -520,7 +520,7 @@ function renderGrid3(sl){
           <div class="card-body">${item.body_text||''}</div>
         </div>`).join('')}
     </div>
-    ${ex.weight_bar_text ? '<div class="weight-bar">'+ex.weight_bar_text+'</div>'+(sl.image_url?'<div style="margin-top:28px;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:2px solid rgba(201,147,58,0.3);cursor:zoom-in" onclick="openLB(\''+sl.image_url+'\',\''+sl.title+'\')"><img src="'+sl.image_url+'" style="width:100%;display:block" onerror="this.style.display=\'none\'"><div style="background:rgba(0,0,0,0.55);padding:9px 20px;text-align:center;font-size:11px;color:rgba(255,255,255,0.5)">'+(sl.zoom_label||'🔍 לחץ להגדלה מלאה')+'</div></div>':'') : ''}
+    ${ex.weight_bar_text ? '<div class="weight-bar">'+ex.weight_bar_text+'</div>'+(ex.lightbox_url?'<div style="margin-top:28px;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:2px solid rgba(201,147,58,0.3);cursor:zoom-in" onclick="openLB(\''+ex.lightbox_url+'\',\''+sl.title+'\')"><img src="'+ex.lightbox_url+'" style="width:100%;display:block" onerror="this.style.display=\'none\'"><div style="background:rgba(0,0,0,0.55);padding:9px 20px;text-align:center;font-size:11px;color:rgba(255,255,255,0.5)">'+(sl.zoom_label||'🔍 לחץ להגדלה מלאה')+'</div></div>':'') : ''}
     ${ex.solution_bar_text?`<div style="background:${sl.accent_color};border-radius:10px;padding:11px 18px;margin-top:18px;font-size:12px;font-weight:700;color:#fff">${ex.solution_bar_text}</div>`:''}
   </div>`;
 }
