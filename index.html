@@ -1237,8 +1237,10 @@ function renderAll(){
   const nav  = document.getElementById('nav-buttons');
   let html = '';
 
+  const STATIC_KEYS = ['podcast','workplan','team','sitephotos','process'];
   allSlides.forEach((sl,i)=>{
     if(sl.slide_order===9) return; // Tab 9 removed
+    if(STATIC_KEYS.includes(sl.slide_key)) return; // rendered separately below
     if     (sl.layout==='cover')      html += renderCover(sl);
     else if(sl.layout==='contact')    html += renderContact(sl);
     else if(sl.layout==='image_full') html += renderModule(sl);
