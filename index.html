@@ -535,7 +535,7 @@ function renderTwoCol(sl){
   const ex = gex(sl.slide_key);
   const isGreen = sl.accent_color==='#2d9e6b';
   const colBg = isLight?'background:var(--teal)':'background:#1c2438';
-  const statData = isGreen ? (sl.stat_data ? JSON.parse(sl.stat_data) : [JSON.parse(sl.stats_json || '[["2-3מ\"מ","עובי"],["0 VOC","תכולה"],["×3","חזק יותר"],["40+","צבעים"]]')]) : [];
+  const statData = isGreen ? (sl.stat_data ? JSON.parse(sl.stat_data) : [(sl.stats_json ? JSON.parse(sl.stats_json) : [['2-3מ״מ','עובי'],['0 VOC','תכולה'],['×3','חזק יותר'],['40+','צבעים']])]) : [];
   const displaySubtitle = ex.subtitle_override || sl.subtitle || '';
   return `
   <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
