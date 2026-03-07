@@ -400,6 +400,8 @@ const { createClient } = supabase;
 const db = createClient(SUPA_URL, SUPA_KEY);
 
 let allSlides=[], allContent=[], allSpecs=[], allCerts=[], allPrice=[], offerMeta={};
+let uiStrings={};
+function ui(key){ return uiStrings[key]||''; }
 let coverComps=[], slideExtra=[], warrantyItems=[], sustainItems=[], colorSamples=[];
 let podcastChapters=[], projectTasks=[], projectMeta={}, processSteps=[];
 let sitePhotos=[], teamMembers=[], teamDetails=[], teamProjects=[], priceMeta={};
@@ -412,7 +414,7 @@ async function loadAll(){
   const [s,cc,sp,ce,pr,om,
          cvr,sex,war,sus,col,
          pod,tsk,pmeta,prc,pho,
-         tmb,tmd,tmp,pricm] = await Promise.all([
+         tmb,tmd,tmp,pricm,uis] = await Promise.all([
     db.from('presentation_slides').select('*').eq('is_active',true).order('slide_order'),
     db.from('slide_content').select('*').eq('is_active',true).order('block_order'),
     db.from('product_specs').select('*').order('spec_order'),
@@ -432,7 +434,8 @@ async function loadAll(){
     db.from('team_members').select('*').eq('is_active',true).order('member_order'),
     db.from('team_member_details').select('*').eq('is_active',true).order('detail_order'),
     db.from('team_projects').select('*').eq('is_active',true).order('project_order'),
-    db.from('price_meta').select('*').eq('is_active',true)
+    db.from('price_meta').select('*').eq('is_active',true),
+    db.from('ui_strings').select('*')
   ]);
   allSlides        = s.data    || [];
   allContent       = cc.data   || [];
@@ -520,7 +523,7 @@ function renderGrid3(sl){
           <div class="card-body">${item.body_text||''}</div>
         </div>`).join('')}
     </div>
-    ${ex.weight_bar_text ? '<div class="weight-bar">'+ex.weight_bar_text+'</div>'+(ex.lightbox_url?'<div style="margin-top:28px;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:2px solid rgba(201,147,58,0.3);cursor:zoom-in" onclick="openLB(\''+ex.lightbox_url+'\',\''+sl.title+'\')"><img src="'+ex.lightbox_url+'" style="width:100%;display:block" onerror="this.style.display=\'none\'"><div style="background:rgba(0,0,0,0.55);padding:9px 20px;text-align:center;font-size:11px;color:rgba(255,255,255,0.5)">'+(sl.zoom_label||'🔍 לחץ להגדלה מלאה')+'</div></div>':'') : ''}
+    ${ex.weight_bar_text ? '<div class="weight-bar">'+ex.weight_bar_text+'</div>'+(ex.lightbox_url?'<div style="margin-top:28px;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:2px solid rgba(201,147,58,0.3);cursor:zoom-in" onclick="openLB(\''+ex.lightbox_url+'\',\''+sl.title+'\')"><img src="'+ex.lightbox_url+'" style="width:100%;display:block" onerror="this.style.display=\'none\'"><div style="background:rgba(0,0,0,0.55);padding:9px 20px;text-align:center;font-size:11px;color:rgba(255,255,255,0.5)">'+(sl.zoom_label||ui('zoom_label'))+'</div></div>':'') : ''}
     ${ex.solution_bar_text?`<div style="background:${sl.accent_color};border-radius:10px;padding:11px 18px;margin-top:18px;font-size:12px;font-weight:700;color:#fff">${ex.solution_bar_text}</div>`:''}
   </div>`;
 }
@@ -535,12 +538,12 @@ function renderTwoCol(sl){
   const ex = gex(sl.slide_key);
   const isGreen = sl.accent_color==='#2d9e6b';
   const colBg = isLight?'background:var(--teal)':'background:#1c2438';
-  const statData = isGreen ? (sl.stat_data ? JSON.parse(sl.stat_data) : (sl.stats_json ? JSON.parse(sl.stats_json) : [['2-3מ״מ','עובי'],['0 VOC','תכולה'],['×3','חזק יותר'],['40+','צבעים']])) : [];
+  const statData = isGreen ? (sl.stat_data ? JSON.parse(sl.stat_data) : (sl.stats_json ? JSON.parse(sl.stats_json) : JSON.parse(ui('stats_json_baxab')||'[]'))) : [];
   const displaySubtitle = ex.subtitle_override || sl.subtitle || '';
   return `
   <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
     <div class="slide-header">
-      <div class="slide-label" style="color:${sl.accent_color}">${ex.label_override||'דף מוצר'}</div>
+      <div class="slide-label" style="color:${sl.accent_color}">${ex.label_override||ui('product_label')}</div>
       <h1 style="${tc}">${sl.title}</h1>
       <p style="${sc}">${displaySubtitle}</p>
       ${ex.supplier_url&&!isGreen?`<p style="margin-top:4px;font-size:12px"><span style="color:#aaa">ספק: </span><a href="${ex.supplier_url}" target="_blank" style="color:var(--gold);font-weight:700;text-decoration:none">${ex.supplier_name} ↗</a></p>`:''}
@@ -559,7 +562,7 @@ function renderTwoCol(sl){
               <div style="font-size:11px;${isLight?'color:#444':'color:var(--lgray)'};line-height:1.8">${f.body_text||''}</div>
             </div>
           </div>`).join('')}
-        ${!isGreen?`<div class="epd-bar">📄 <a href="${EPD_URL}" target="_blank">${sl.epd_label||'צפה בדף נתוני EPD — דנסגלס® (PDF)'}</a></div>`:''}
+        ${!isGreen?`<div class="epd-bar">📄 <a href="${EPD_URL}" target="_blank">${sl.epd_label||ui('epd_label')}</a></div>`:''}
         ${isGreen?`
         <div style="margin-top:16px">
           <div style="font-size:11px;font-weight:900;color:var(--green);margin-bottom:8px;letter-spacing:1px">🎨 מגוון צבעים — לחץ להגדלה</div>
@@ -569,16 +572,16 @@ function renderTwoCol(sl){
                alt="צבעי Topcret" onerror="this.style.display='none'">`:''}
           <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
             ${sl.image_url?`<button onclick="openLB('${sl.image_url}','${sl.title}')"
-               style="flex:1;background:var(--green);color:#fff;padding:9px 14px;border-radius:8px;font-size:11px;font-weight:700;border:none;cursor:pointer">${sl.enlarge_label||'🔍 הגדל תמונה'}
+               style="flex:1;background:var(--green);color:#fff;padding:9px 14px;border-radius:8px;font-size:11px;font-weight:700;border:none;cursor:pointer">${sl.enlarge_label||ui('enlarge_label')}
             </button>`:''}
             ${sl.download_url?`<a href="${sl.download_url}" target="_blank"
-               style="flex:1;background:rgba(45,158,107,0.2);border:1px solid var(--green);color:var(--green);padding:9px 14px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none;text-align:center">${sl.download_label||'📥 הורד מדריך צבעים PDF'}
+               style="flex:1;background:rgba(45,158,107,0.2);border:1px solid var(--green);color:var(--green);padding:9px 14px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none;text-align:center">${sl.download_label||ui('download_colors_label')}
             </a>`:''}
           </div>
-          <div style="font-size:10px;color:var(--mgray);margin-top:6px;text-align:center">${sl.color_note||'40+ צבעים בסיסיים + Paint To Sample מותאם אישית · Topcret®'}</div>
+          <div style="font-size:10px;color:var(--mgray);margin-top:6px;text-align:center">${sl.color_note||ui('color_note')}</div>
         </div>
         <div style="margin-top:20px;background:rgba(201,147,58,0.08);border:1px solid rgba(201,147,58,0.3);border-radius:12px;padding:18px;direction:rtl">
-          <div style="font-size:13px;font-weight:900;color:var(--gold);margin-bottom:14px">${sl.warranty_section_title||'🛡️ אחריות וביטוח — Topcret®'}</div>
+          <div style="font-size:13px;font-weight:900;color:var(--gold);margin-bottom:14px">${sl.warranty_section_title||ui('warranty_title')}</div>
           ${warrantyItems.map((w,i)=>`
             <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(201,147,58,0.12);align-items:flex-start">
               <span style="background:var(--gold);color:var(--dark);border-radius:50%;width:22px;height:22px;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">${i+1}</span>
@@ -590,8 +593,8 @@ function renderTwoCol(sl){
         </div>
         <div style="margin-top:20px;background:rgba(45,158,107,0.08);border:1px solid rgba(45,158,107,0.25);border-radius:12px;padding:16px;direction:rtl">
           <div style="font-size:12px;font-weight:900;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:8px">
-            ${sl.sustainability_title||'♻️ מחויבות הקיימות של Topcret®'}
-            ${sl.sustainability_url?`<a href="${sl.sustainability_url}" target="_blank" style="font-size:9px;color:var(--mgray);font-weight:400;text-decoration:none;border:1px solid rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px">${sl.source_label||'🔗 המקור'}</a>`:''}
+            ${sl.sustainability_title||ui('sustainability_title')}
+            ${sl.sustainability_url?`<a href="${sl.sustainability_url}" target="_blank" style="font-size:9px;color:var(--mgray);font-weight:400;text-decoration:none;border:1px solid rgba(255,255,255,0.2);padding:2px 8px;border-radius:10px">${sl.source_label||ui('source_label')}</a>`:''}
           </div>
           ${sustainItems.map(s=>`
             <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(45,158,107,0.15);align-items:flex-start">
@@ -602,7 +605,7 @@ function renderTwoCol(sl){
               </div>
             </div>`).join('')}
           <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-            ${(sl.cert_badges||'EPD מאושר,LEED,BREEAM Exemplary,WELL Standard,אפס VOC,בסיס מים,ריחרי').split(',').map(b=>
+            ${(sl.cert_badges||ui('cert_badges')).split(',').map(b=>
               `<span style="background:rgba(45,158,107,0.2);border:1px solid rgba(45,158,107,0.4);color:var(--green);padding:3px 10px;border-radius:12px;font-size:9px;font-weight:700">${b.trim()}</span>`
             ).join('')}
           </div>
@@ -643,26 +646,26 @@ function renderFireTable(sl){
         <div class="table-title" style="color:var(--teal)">${sl.table1_title||'דנסגלס® — אישורי אש ובטיחות'}</div>
         <div class="price-wrap">
           <table class="data-table">
-            <tr><th style="background:var(--teal);color:#fff">${sl.col1_h1||'תעודה'}</th>
-                <th style="background:var(--teal);color:#fff">${sl.col1_h2||'תוצאה'}</th>
-                <th style="background:var(--teal);color:#fff">${sl.col1_h3||'תקן / אסמכתא'}</th></tr>
+            <tr><th style="background:var(--teal);color:#fff">${sl.col1_h1||ui('cert_col_label')}</th>
+                <th style="background:var(--teal);color:#fff">${sl.col1_h2||ui('result_label')}</th>
+                <th style="background:var(--teal);color:#fff">${sl.col1_h3||ui('standard_col_label')}</th></tr>
             ${dgC.map(r=>`<tr class="${r.highlight?'highlight-row':''}">
               <td>${r.cert_name}</td><td class="pass">${r.result}</td>
               <td style="font-size:10px;color:#777">${r.version||''}</td></tr>`).join('')}
           </table>
         </div>
-        <div class="epd-bar" style="margin-top:10px">📄 <a href="${EPD_URL}" target="_blank">${sl.epd_label||'דף נתוני EPD — דנסגלס® (PDF)'}</a></div>
+        <div class="epd-bar" style="margin-top:10px">📄 <a href="${EPD_URL}" target="_blank">${sl.epd_label||ui('epd_label')}</a></div>
         ${sl.fire_test_url?`<div class="epd-bar" style="margin-top:8px;background:rgba(220,53,69,0.08);border:1px solid rgba(220,53,69,0.3)">
           🔥 <a href="${sl.fire_test_url}" target="_blank" style="color:#dc3545;font-weight:700">
-            ${sl.fire_test_label||'תוצאות בדיקת תקן אש — מכון התקנים הישראלי (PDF) ↓'}
+            ${sl.fire_test_label||ui('fire_test_label')}
           </a></div>`:''}
       </div>
       <div>
         <div class="table-title" style="color:var(--green)">${sl.table2_title||'באקסב-אקו® — ציות VOC וסביבה'}</div>
         <div class="price-wrap">
           <table class="data-table">
-            <tr><th style="background:var(--green);color:#fff">${sl.col2_h1||'תקנה / פרוטוקול'}</th>
-                <th style="background:var(--green);color:#fff">${sl.col2_h2||'תוצאה'}</th>
+            <tr><th style="background:var(--green);color:#fff">${sl.col2_h1||ui('protocol_col_label')}</th>
+                <th style="background:var(--green);color:#fff">${sl.col2_h2||ui('result_label')}</th>
                 <th style="background:var(--green);color:#fff">${sl.col2_h3||'גרסה'}</th></tr>
             ${bxC.map(r=>`<tr class="${r.highlight?'highlight-row':''}">
               <td>${r.cert_name}</td><td class="pass">✓ ${r.result}</td>
@@ -681,7 +684,7 @@ function renderPriceTable(sl){
   return `
   <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
     <div class="slide-header">
-      <div class="slide-label" style="color:${sl.accent_color}">${gex('price').label_override||'הצעת מחיר'}</div>
+      <div class="slide-label" style="color:${sl.accent_color}">${gex('price').label_override||ui('price_title')}</div>
       <h1 style="color:#1a1a2e">${sl.title}</h1>
       <div class="header-line" style="background:${sl.accent_color}"></div>
     </div>
@@ -696,7 +699,7 @@ function renderPriceTable(sl){
       <div style="background:var(--teal);padding:12px 20px;display:flex;align-items:center;justify-content:space-between">
         <span style="font-size:13px;font-weight:700;color:#fff">📄 ${sl.title}</span>
         ${PDF_OFFER?`<a href="${PDF_OFFER}" target="_blank"
-           style="background:var(--gold);color:var(--dark);padding:7px 18px;border-radius:20px;font-size:11px;font-weight:900;text-decoration:none">${sl.download_label||'⬇️ הורד PDF'}
+           style="background:var(--gold);color:var(--dark);padding:7px 18px;border-radius:20px;font-size:11px;font-weight:900;text-decoration:none">${sl.download_label||ui('download_pdf_label')}
         </a>`:''}
       </div>
       ${PDF_OFFER?`<iframe data-src="${PDF_OFFER}" src="about:blank"
@@ -704,12 +707,12 @@ function renderPriceTable(sl){
               class="lazy-iframe" title="${sl.title}"></iframe>`:''}
     </div>
     ${PDF_OFFER?`<div style="text-align:center;margin-top:12px;font-size:10px;color:#999">
-      אם ה-PDF לא נטען — <a href="${PDF_OFFER}" target="_blank" style="color:var(--teal);font-weight:700">${sl.open_new_label||'לחץ כאן לפתיחה בחלון חדש'}</a>
+      אם ה-PDF לא נטען — <a href="${PDF_OFFER}" target="_blank" style="color:var(--teal);font-weight:700">${sl.open_new_label||ui('open_link_label')}</a>
     </div>`:''}
   </div>`;
 }
 function _priceLabel(key){
-  const m={'client':(priceMeta.client&&priceMeta.client.meta_label)||'לקוח','send_date':(priceMeta.send_date&&priceMeta.send_date.meta_label)||'תאריך שליחה','sent_by':(priceMeta.sent_by&&priceMeta.sent_by.meta_label)||'נשלח על ידי','execution':(priceMeta.execution&&priceMeta.execution.meta_label)||'ביצוע'};
+  const m={'client':(priceMeta.client&&priceMeta.client.meta_label)||'לקוח','send_date':(priceMeta.send_date&&priceMeta.send_date.meta_label)||ui('send_date_label'),'sent_by':(priceMeta.sent_by&&priceMeta.sent_by.meta_label)||ui('sent_by_label'),'execution':(priceMeta.execution&&priceMeta.execution.meta_label)||ui('execution_label')};
   return m[key]||key;
 }
 
@@ -730,19 +733,19 @@ function renderModule(sl){
   return `
   <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
     <div class="slide-header">
-      <div class="slide-label" style="color:${sl.accent_color}">${ex.label_override||'סקיצה טכנית · גוונים'}</div>
+      <div class="slide-label" style="color:${sl.accent_color}">${ex.label_override||ui('module_subtitle')}</div>
       <h1 style="color:#fff">${sl.title}</h1>
       <p style="color:var(--lgray)">${sl.subtitle||''}</p>
       <div class="header-line" style="background:${sl.accent_color}"></div>
     </div>
     <div style="text-align:center;margin-bottom:28px">
       <img src="${MOD_URL}" style="max-height:220px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.5);cursor:zoom-in;object-fit:contain"
-           onclick="openLB('${MOD_URL}','${sl.module_label||'מודול הבנייה — חתך מערכת'}')"
+           onclick="openLB('${MOD_URL}','${sl.module_label||ui('module_title')}')"
            alt="${sl.module_label||'מודול הבנייה'}" onerror="this.style.display='none'">
-      <div style="font-size:11px;color:var(--mgray);margin-top:8px">${sl.zoom_hint||'לחץ להגדלה'}</div>
+      <div style="font-size:11px;color:var(--mgray);margin-top:8px">${sl.zoom_hint||ui('zoom_hint')}</div>
     </div>
     <div style="font-size:13px;font-weight:900;color:var(--gold);margin-bottom:14px;text-align:center;letter-spacing:1px">
-      ${sl.colors_title||'בחר גוון — לחץ על התמונה להגדלה וזום'}
+      ${sl.colors_title||ui('colors_hint')}
     </div>
     <div class="colors-grid">
       ${colorSamples.map(cs=>`
@@ -752,7 +755,7 @@ function renderModule(sl){
         </div>`).join('')}
     </div>
     <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--mgray)">
-      ${sl.colors_note||'🎨 &nbsp; כל הגוונים — ציפוי באקסב-אקו® מיקרוטופינג · Topcret®'}
+      ${sl.colors_note||ui('module_colors_title')}
     </div>
   </div>`;
 }
@@ -764,7 +767,7 @@ function renderSurfaces(sl){
   return `
   <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
     <div class="slide-header">
-      <div class="slide-label" style="color:${sl.accent_color}">מדריך טכני</div>
+      <div class="slide-label" style="color:${sl.accent_color}">${ui('module_label')}</div>
       <h1 style="color:#1a1a2e">${title}</h1>
       <p style="color:#555">${sl.subtitle||''}</p>
       <div class="header-line" style="background:${sl.accent_color}"></div>
@@ -780,19 +783,16 @@ function renderSurfaces(sl){
           <p style="font-size:11px;color:#444;line-height:1.8">${item.body_text||''}</p>
         </div>`).join('')}
     </div>
-    <div style="background:var(--teal);border-radius:10px;padding:11px 18px;margin-top:18px;font-size:12px;font-weight:700;color:#fff">
-      ✅ דנסגלס® הוא המשטח האידיאלי לציפוי באקסב-אקו® — מומלץ על ידי EIMA לכל אזורי האקלים.
-    </div>
   </div>`;
 }
 
 /* ── CONTACT ── */
 function renderContact(sl){
-  const ex = gex('contact');
+  const ex = gex(sl.slide_key);
   return `
   <div class="slide" id="slide-${idx(sl)}" style="background:${sl.bg_color};padding-top:68px">
     <div class="contact-wrap">
-      <div style="font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:14px">${ex.label_override||'צור קשר'}</div>
+      <div style="font-size:10px;letter-spacing:3px;color:var(--gold);margin-bottom:14px">${ex.label_override||ui('contact_label')}</div>
       <h1 style="font-size:38px;font-weight:900;text-align:center;max-width:680px;line-height:1.2">${sl.title}</h1>
       <p style="color:var(--gold);font-size:14px;letter-spacing:2px;margin-top:12px">${sl.subtitle}</p>
       <div style="width:90px;height:3px;background:var(--gold);margin:24px auto"></div>
@@ -807,7 +807,7 @@ function renderContact(sl){
         </div>
       </div>
       <div class="epd-bar" style="margin-top:28px;justify-content:center">
-        📄 <a href="${EPD_URL}" target="_blank">${sl.epd_link_label||'הורד דף נתוני EPD — דנסגלס®'}</a>
+        📄 <a href="${EPD_URL}" target="_blank">${sl.epd_link_label||ui('epd_download_label')}</a>
       </div>
     </div>
   </div>`;
@@ -821,7 +821,7 @@ function renderPodcast(){
   return `
   <div class="slide" id="slide-podcast" style="background:linear-gradient(160deg,#0a0f1e 0%,#0d1a15 50%,#0a0f1e 100%);padding-top:68px">
     <div class="slide-header">
-      <div class="slide-label" style="color:var(--gold)">🎙️ ${sl.label_text||'פודקאסט'}</div>
+      <div class="slide-label" style="color:var(--gold)">🎙️ ${sl.label_text||ui('podcast_label')}</div>
       <h1 style="color:#fff">${sl.title||'פודקאסט מפורט לחידוש חזיתות'}</h1>
       <p style="color:var(--lgray)">${sl.subtitle||''}</p>
       <div class="header-line" style="background:var(--gold)"></div>
@@ -854,16 +854,16 @@ function renderPodcast(){
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)">
             <div style="display:flex;gap:6px;align-items:center">
-              <span style="font-size:10px;color:#666">${sl.speed_label||'מהירות:'}</span>
+              <span style="font-size:10px;color:#666">${sl.speed_label||ui('speed_label')}</span>
               ${['0.75','1','1.25','1.5','2'].map(s=>`
                 <button onclick="podSpeed('${s}')" id="spd-${s.replace('.','_')}"
                         style="background:${s==='1'?'var(--teal)':'rgba(255,255,255,0.08)'};border:none;color:${s==='1'?'#fff':'#aaa'};border-radius:12px;padding:4px 8px;font-size:10px;cursor:pointer;transition:all 0.2s">${s}x</button>`).join('')}
             </div>
-            ${AUDIO_URL?`<a href="${AUDIO_URL}" download style="background:rgba(201,147,58,0.15);border:1px solid rgba(201,147,58,0.3);color:var(--gold);border-radius:12px;padding:6px 14px;font-size:10px;font-weight:700;text-decoration:none">${sl.download_label||'⬇️ הורד'}</a>`:''}
+            ${AUDIO_URL?`<a href="${AUDIO_URL}" download style="background:rgba(201,147,58,0.15);border:1px solid rgba(201,147,58,0.3);color:var(--gold);border-radius:12px;padding:6px 14px;font-size:10px;font-weight:700;text-decoration:none">${sl.download_label||ui('download_label')}</a>`:''}
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px">
-          ${(sl.stats_json ? JSON.parse(sl.stats_json) : [['🕐','משך',sl.duration||'~37 דקות'],['📚','פרקים',chapters.length+' נושאים'],['🎯','רמה','מקצועי']]).map(([i,l,v])=>`
+          ${(sl.stats_json ? JSON.parse(sl.stats_json) : [['🕐','משך',sl.duration||ui('podcast_duration')],['📚','פרקים',chapters.length+' נושאים'],['🎯','רמה','מקצועי']]).map(([i,l,v])=>`
             <div style="background:#1a2030;border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,0.06)">
               <div style="font-size:20px;margin-bottom:4px">${i}</div>
               <div style="font-size:9px;color:#666;margin-bottom:2px">${l}</div>
@@ -872,7 +872,7 @@ function renderPodcast(){
         </div>
       </div>
       <div>
-        <div style="font-size:12px;font-weight:900;color:var(--gold);margin-bottom:14px;letter-spacing:1px">📋 ${sl.chapters_title||'תוכן עניינים — לחץ לדילוג'}</div>
+        <div style="font-size:12px;font-weight:900;color:var(--gold);margin-bottom:14px;letter-spacing:1px">📋 ${sl.chapters_title||ui('toc_label')}</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${chapters.map(ch=>`
             <div onclick="podJump('${ch.time_stamp}')"
@@ -953,7 +953,7 @@ function renderWorkPlan(){
   const totalDays = parseInt(pm.project_total_days||'40');
   const daysSinceStart = Math.floor((today - projectStart) / 86400000);
   const todayPct = Math.min(100, Math.max(0, (daysSinceStart / totalDays) * 100));
-  const weeks = (pm.gantt_weeks||'1 מרץ,8 מרץ,15 מרץ,22 מרץ,29 מרץ,5 אפר,12 אפר').split(',');
+  const weeks = (pm.gantt_weeks||ui('gantt_dates')||'1 מרץ,8 מרץ,15 מרץ,22 מרץ,29 מרץ,5 אפר,12 אפר').split(',');
   const avgDone = tasks.length ? Math.round(tasks.reduce((a,t)=>a+t.done_pct,0)/tasks.length) : 0;
 
   const ganttRows = tasks.map(t => {
@@ -981,16 +981,16 @@ function renderWorkPlan(){
     </div>`;
 
   const statusItems = [
-    ['📅',pm.label_start_date||'תאריך התחלה', pm.project_start_date ? new Date(pm.project_start_date).toLocaleDateString('he-IL') : '', 'var(--teal)'],
-    ['🏁',pm.label_delivery||'מסירה מתוכננת', pm.delivery_date||'', 'var(--gold)'],
-    ['👷',pm.label_team||'צוות מבצע',     pm.team_members||'',  'var(--green)'],
-    ['📍','פרויקט',        pm.project_name||'',  'var(--teal)'],
+    ['📅',pm.label_start_date||ui('start_date_label'), pm.project_start_date ? new Date(pm.project_start_date).toLocaleDateString('he-IL') : '', 'var(--teal)'],
+    ['🏁',pm.label_delivery||ui('delivery_label'), pm.delivery_date||'', 'var(--gold)'],
+    ['👷',pm.label_team||ui('team_label'),     pm.team_members||'',  'var(--green)'],
+    ['📍',ui('workplan_short')||'פרויקט',        pm.project_name||'',  'var(--teal)'],
   ];
 
   return `
   <div class="slide" id="slide-operations" style="background:#0f1420;padding-top:68px">
     <div class="slide-header">
-      <div class="slide-label" style="color:var(--gold)">${sl.label_text||'ניהול פרויקט'}</div>
+      <div class="slide-label" style="color:var(--gold)">${sl.label_text||ui('workplan_label')}</div>
       <h1 style="color:#fff">${sl.title||'נהלי עבודה — '+( pm.project_name||'')}</h1>
       <p style="color:var(--lgray)">${sl.subtitle||'יומן עבודה · גנט פעילות · מעקב התקדמות'}</p>
       <div class="header-line" style="background:var(--gold)"></div>
@@ -999,17 +999,17 @@ function renderWorkPlan(){
       <div style="background:#1a2030;border-radius:14px;padding:20px;border:1px solid rgba(201,147,58,0.2)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <div>
-            <div style="font-size:14px;font-weight:900;color:var(--gold)">📊 ${sl.gantt_title||'גנט פעילות'}</div>
+            <div style="font-size:14px;font-weight:900;color:var(--gold)">📊 ${sl.gantt_title||ui('gantt_title')}</div>
             <div style="font-size:10px;color:#666;margin-top:3px">${pm.gantt_subtitle||''}</div>
           </div>
           <div style="text-align:center">
             <div style="font-size:20px;font-weight:900;color:var(--green)">${avgDone}%</div>
-            <div style="font-size:9px;color:#666">${sl.progress_label||'התקדמות כוללת'}</div>
+            <div style="font-size:9px;color:#666">${sl.progress_label||ui('progress_label')}</div>
           </div>
         </div>
         <div style="position:relative;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:12px;overflow:visible">
           <div style="position:absolute;right:0;width:${todayPct}%;height:100%;background:var(--gold);border-radius:2px"></div>
-          <div style="position:absolute;right:${todayPct}%;top:-8px;font-size:8px;color:var(--gold);white-space:nowrap;transform:translateX(50%)">${sl.today_label||'▼ היום'}</div>
+          <div style="position:absolute;right:${todayPct}%;top:-8px;font-size:8px;color:var(--gold);white-space:nowrap;transform:translateX(50%)">${sl.today_label||ui('today_label')}</div>
         </div>
         ${weekHeaders}
         <div>${ganttRows}</div>
@@ -1024,19 +1024,19 @@ function renderWorkPlan(){
       <div style="background:#1a2030;border-radius:14px;overflow:hidden;border:1px solid rgba(201,147,58,0.2);display:flex;flex-direction:column">
         <div style="background:var(--teal);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
           <div>
-            <div style="font-size:13px;font-weight:900;color:#fff">📓 ${sl.journal_title||'יומן עבודה'}</div>
+            <div style="font-size:13px;font-weight:900;color:#fff">📓 ${sl.journal_title||ui('journal_title')}</div>
             <div style="font-size:9px;color:rgba(255,255,255,0.6);margin-top:2px">${pm.project_name||''}</div>
           </div>
-          <a href="${sl.journal_url||'https://avshi2-maker.github.io/work-journal/'}" target="_blank"
+          <a href="${sl.journal_url||ui('journal_url')||'https://avshi2-maker.github.io/work-journal/'}" target="_blank"
              style="background:var(--gold);color:var(--dark);padding:6px 14px;border-radius:16px;font-size:10px;font-weight:900;text-decoration:none">
-            ${sl.open_full_label||'🔗 פתח בחלון מלא'}
+            ${sl.open_full_label||ui('open_full_label')}
           </a>
         </div>
-        <iframe data-src="${sl.journal_url||'https://avshi2-maker.github.io/work-journal/'}" src="about:blank"
+        <iframe data-src="${sl.journal_url||ui('journal_url')||'https://avshi2-maker.github.io/work-journal/'}" src="about:blank"
                 style="flex:1;width:100%;min-height:520px;border:none;background:#fff"
-                class="lazy-iframe" title="${sl.journal_title||'יומן עבודה'}"></iframe>
+                class="lazy-iframe" title="${sl.journal_title||ui('journal_title')}"></iframe>
         <div style="padding:8px 16px;background:#131925;font-size:9px;color:#555;text-align:center">
-          ${sl.journal_fallback||'אם היומן לא נטען — לחץ "פתח בחלון מלא" למעלה'}
+          ${sl.journal_fallback||ui('journal_fallback')}
         </div>
       </div>
     </div>
@@ -1060,7 +1060,7 @@ function renderProcess(){
   return `
   <div class="slide" id="slide-process" style="background:#0f1420;padding-top:68px">
     <div class="slide-header">
-      <div class="slide-label" style="color:var(--gold)">${sl.label_text||sl.label_text||sl.label_text||'מדריך טכני'}</div>
+      <div class="slide-label" style="color:var(--gold)">${sl.label_text||sl.label_text||sl.label_text||ui('module_label')}</div>
       <h1 style="color:#fff">${sl.title||'תהליך מריחת מיקרוטופינג'}</h1>
       <p style="color:var(--lgray)">${sl.subtitle||''}</p>
       <div class="header-line" style="background:var(--gold)"></div>
@@ -1069,8 +1069,8 @@ function renderProcess(){
       <div>
         <div style="background:#1a2030;border-radius:14px;overflow:hidden;border:1px solid rgba(201,147,58,0.25)">
           <div style="background:var(--teal);padding:10px 18px;display:flex;align-items:center;justify-content:space-between">
-            <span style="font-size:12px;font-weight:900;color:#fff">🎬 ${sl.video_title||'וידאו — תהליך היישום'}</span>
-            ${VIDEO_URL?`<a href="${VIDEO_URL}" target="_blank" style="background:var(--gold);color:var(--dark);padding:5px 12px;border-radius:12px;font-size:10px;font-weight:900;text-decoration:none">${sl.download_label||'⬇️ הורד'}</a>`:''}
+            <span style="font-size:12px;font-weight:900;color:#fff">🎬 ${sl.video_title||ui('video_title')}</span>
+            ${VIDEO_URL?`<a href="${VIDEO_URL}" target="_blank" style="background:var(--gold);color:var(--dark);padding:5px 12px;border-radius:12px;font-size:10px;font-weight:900;text-decoration:none">${sl.download_label||ui('download_label')}</a>`:''}
           </div>
           ${VIDEO_URL?`
             <video controls playsinline style="width:100%;max-height:340px;display:block;background:#000">
@@ -1079,8 +1079,8 @@ function renderProcess(){
             </video>` : `
             <div style="height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#131925">
               <div style="font-size:64px;margin-bottom:16px;opacity:0.25">🎬</div>
-              <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,0.3);margin-bottom:8px">${sl.video_placeholder||'וידאו בדרך'}</div>
-              <div style="font-size:11px;color:#444;text-align:center;max-width:280px;line-height:1.8">${sl.video_hint||'העלה קובץ MP4 לבאקט Supabase ועדכן video_url בשורת presentation_slides'}</div>
+              <div style="font-size:14px;font-weight:700;color:rgba(255,255,255,0.3);margin-bottom:8px">${sl.video_placeholder||ui('video_placeholder')}</div>
+              <div style="font-size:11px;color:#444;text-align:center;max-width:280px;line-height:1.8">${sl.video_hint||ui('video_hint')}</div>
             </div>`}
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
@@ -1123,7 +1123,7 @@ function renderSitePhotos(){
   return `
   <div class="slide" id="slide-sitephotos" style="background:#0f1420;padding-top:68px">
     <div class="slide-header">
-      <div class="slide-label" style="color:var(--gold)">${sl.label_text||'תיעוד שטח'}</div>
+      <div class="slide-label" style="color:var(--gold)">${sl.label_text||ui('sitephotos_label')}</div>
       <h1 style="color:#fff">${sl.title||'תמונות מצב קיים'}</h1>
       <p style="color:var(--lgray)">${sl.subtitle||''}</p>
       <div class="header-line" style="background:var(--gold)"></div>
@@ -1131,10 +1131,10 @@ function renderSitePhotos(){
     ${photos.length === 0 ? `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:55vh;text-align:center">
         <div style="font-size:72px;margin-bottom:24px;opacity:0.3">📷</div>
-        <div style="font-size:20px;font-weight:900;color:rgba(255,255,255,0.4);margin-bottom:12px">${sl.placeholder_title||'תמונות יועלו בקרוב'}</div>
+        <div style="font-size:20px;font-weight:900;color:rgba(255,255,255,0.4);margin-bottom:12px">${sl.placeholder_title||ui('photos_placeholder')}</div>
         <div style="font-size:13px;color:#555;max-width:400px;line-height:1.8">${sl.placeholder_hint||'הוסף שורות לטבלת site_photos ב-Supabase'}</div>
         <div style="margin-top:28px;background:rgba(201,147,58,0.08);border:1px dashed rgba(201,147,58,0.3);border-radius:12px;padding:20px 32px">
-          <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:10px">📋 ${sl.checklist_title||'מה לצלם'}</div>
+          <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:10px">📋 ${sl.checklist_title||ui('photos_what_label')}</div>
           ${todoItems.map((item,i)=>`
             <div style="display:flex;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);direction:rtl">
               <span style="background:var(--gold);color:var(--dark);border-radius:50%;width:20px;height:20px;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</span>
@@ -1159,7 +1159,7 @@ function renderTeam(){
   const sl = allSlides.find(s=>s.slide_key==='team') || {};
   const members = teamMembers;
   const badges = sl.badges_json ? JSON.parse(sl.badges_json) :
-    JSON.parse(projectMeta.team_badges||'[["var(--teal)","✅ מיישמים מוסמכים"],["var(--green)","✅ אחריות Topcret®"],["var(--gold)","✅ פיקוח יומי"]]');
+    JSON.parse(projectMeta.team_badges||ui('team_badges_json')||'[]');
   return `
   <div class="slide" id="slide-team" style="background:#0f1420;padding-top:68px">
     <div class="slide-header">
@@ -1194,7 +1194,7 @@ function renderTeam(){
               </div>`).join('')}
             ${projects.length?`
             <div style="margin-top:18px;background:rgba(255,255,255,0.05);border-radius:10px;padding:12px 16px;border:1px solid rgba(255,255,255,0.1)">
-              <div style="font-size:10px;color:${m.accent_color};font-weight:900;margin-bottom:6px">${sl.projects_title||'🏆 פרויקטים נבחרים'}</div>
+              <div style="font-size:10px;color:${m.accent_color};font-weight:900;margin-bottom:6px">${sl.projects_title||ui('projects_title')}</div>
               <div style="font-size:10px;color:#aaa;line-height:2">
                 ${projects.map(p=>`· ${p.description}`).join('<br>')}
               </div>
@@ -1204,16 +1204,16 @@ function renderTeam(){
               <div style="font-size:10px;font-weight:900;color:${m.accent_color};margin-bottom:8px;letter-spacing:1px">${sl.cv_section_title||'📄 קורות חיים מלאים'}</div>
               <div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.3)">
                 <div style="background:${m.accent_color};padding:8px 14px;display:flex;align-items:center;justify-content:space-between">
-                  <span style="font-size:11px;font-weight:700;color:#fff">${m.name} — ${sl.profile_suffix||'פרופיל מקצועי'}</span>
-                  <a href="${m.cv_pdf_url}" target="_blank" style="background:var(--gold);color:var(--dark);padding:5px 12px;border-radius:12px;font-size:10px;font-weight:900;text-decoration:none">${sl.download_label||'⬇️ הורד PDF'}</a>
+                  <span style="font-size:11px;font-weight:700;color:#fff">${m.name} — ${sl.profile_suffix||ui('cv_section_title')}</span>
+                  <a href="${m.cv_pdf_url}" target="_blank" style="background:var(--gold);color:var(--dark);padding:5px 12px;border-radius:12px;font-size:10px;font-weight:900;text-decoration:none">${sl.download_label||ui('download_pdf_label')}</a>
                 </div>
-                <iframe data-src="${m.cv_pdf_url}" src="about:blank" style="width:100%;height:320px;border:none;display:block" class="lazy-iframe" title="${sl.cv_prefix||'קורות חיים'} ${m.name}"></iframe>
+                <iframe data-src="${m.cv_pdf_url}" src="about:blank" style="width:100%;height:320px;border:none;display:block" class="lazy-iframe" title="${sl.cv_prefix||ui('cv_prefix')} ${m.name}"></iframe>
               </div>
-              <div style="text-align:center;margin-top:6px;font-size:9px;color:#555">${sl.pdf_fallback_prefix||'אם ה-PDF לא נטען — '}<a href="${m.cv_pdf_url}" target="_blank" style="color:${m.accent_color};font-weight:700">${sl.open_new_label||'פתח בחלון חדש'}</a>
+              <div style="text-align:center;margin-top:6px;font-size:9px;color:#555">${sl.pdf_fallback_prefix||ui('pdf_fallback')}<a href="${m.cv_pdf_url}" target="_blank" style="color:${m.accent_color};font-weight:700">${sl.open_new_label||ui('open_new_label')}</a>
               </div>
             </div>`:
             `<div style="margin-top:14px;background:rgba(201,147,58,0.08);border-radius:10px;padding:10px 14px;font-size:10px;color:#999;text-align:center;border:1px dashed rgba(201,147,58,0.25)">
-              ${sl.cv_no_pdf_msg||'📄 קורות חיים מלאים — זמינים על פי בקשה'}
+              ${sl.cv_no_pdf_msg||ui('cv_no_pdf_msg')}
             </div>`}
           </div>
         </div>`}).join('')}
@@ -1221,7 +1221,7 @@ function renderTeam(){
     <div style="background:rgba(201,147,58,0.08);border:1px solid rgba(201,147,58,0.2);border-radius:12px;padding:14px 20px;margin-top:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;direction:rtl">
       <span style="font-size:20px">🤝</span>
       <div>
-        <div style="font-size:12px;font-weight:900;color:var(--gold)">${sl.footer_title||'קבוצת ביצוע מקצועית'}</div>
+        <div style="font-size:12px;font-weight:900;color:var(--gold)">${sl.footer_title||ui('team_footer_title')}</div>
         <div style="font-size:11px;color:#999;margin-top:3px">${sl.footer_subtitle||''}</div>
       </div>
       <div style="margin-right:auto;display:flex;gap:10px;flex-wrap:wrap">
@@ -1270,11 +1270,11 @@ function renderAll(){
   // Static tab labels from Supabase slide titles (fallback if slide not found)
   function _stab(key, fallback){ const s=allSlides.find(r=>r.slide_key===key); return s ? s.slide_order+'. '+s.title : fallback; }
   const staticTabs = [
-    [totalNow-5, _stab('podcast',  '11. פודקאסט')],
-    [totalNow-4, _stab('workplan', '12. נהלי עבודה')],
-    [totalNow-3, _stab('team',     '13. קבוצת ביצוע')],
-    [totalNow-2, _stab('sitephotos','14. תמונות מצב קיים')],
-    [totalNow-1, _stab('process',  '15. תהליך יישום')],
+    [totalNow-5, _stab('podcast',  ui('nav_podcast')||'11. פודקאסט')],
+    [totalNow-4, _stab('workplan', ui('nav_workplan')||'12. נהלי עבודה')],
+    [totalNow-3, _stab('team',     ui('nav_team')||'13. קבוצת ביצוע')],
+    [totalNow-2, _stab('sitephotos',ui('nav_sitephotos')||'14. תמונות מצב קיים')],
+    [totalNow-1, _stab('process',  ui('nav_process')||'15. תהליך יישום')],
   ];
 
   nav.innerHTML = allSlides.filter(sl=>sl.slide_order!==9).map((sl,i)=>`
